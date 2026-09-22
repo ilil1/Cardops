@@ -1,0 +1,279 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <linearGradient id="pageBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#eef2ff"/>
+    </linearGradient>
+    <linearGradient id="headerGlow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#172554"/>
+      <stop offset="0.52" stop-color="#1e3a8a"/>
+      <stop offset="1" stop-color="#312e81"/>
+    </linearGradient>
+    <linearGradient id="reactGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e0f2fe"/>
+      <stop offset="1" stop-color="#f0f9ff"/>
+    </linearGradient>
+    <linearGradient id="apiGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d1fae5"/>
+      <stop offset="1" stop-color="#ecfdf5"/>
+    </linearGradient>
+    <linearGradient id="dbGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffedd5"/>
+      <stop offset="1" stop-color="#fff7ed"/>
+    </linearGradient>
+    <linearGradient id="deployGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ede9fe"/>
+      <stop offset="1" stop-color="#f5f3ff"/>
+    </linearGradient>
+    <linearGradient id="localGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff7ed"/>
+      <stop offset="1" stop-color="#fffbeb"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#0f172a" flood-opacity="0.08"/>
+    </filter>
+    <marker id="arrowBlue" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrowViolet" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#7c3aed"/>
+    </marker>
+    <marker id="arrowAmber" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#d97706"/>
+    </marker>
+    <style>
+      text { font-family: 'Pretendard','Noto Sans KR','Malgun Gothic','Segoe UI',Arial,sans-serif; }
+      .title { font-size: 38px; font-weight: 700; fill: #ffffff; letter-spacing: -0.5px; }
+      .subtitle { font-size: 18px; font-weight: 400; fill: #c7d2fe; }
+      .section-no { font-size: 15px; font-weight: 700; fill: #2563eb; letter-spacing: 1.6px; }
+      .section-title { font-size: 24px; font-weight: 700; fill: #0f172a; }
+      .section-sub { font-size: 14px; font-weight: 400; fill: #64748b; }
+      .card-kicker { font-size: 13px; font-weight: 700; letter-spacing: 1px; }
+      .card-title { font-size: 25px; font-weight: 700; fill: #0f172a; }
+      .card-sub { font-size: 15px; font-weight: 400; fill: #475569; }
+      .small { font-size: 13px; font-weight: 400; fill: #64748b; }
+      .chip { font-size: 12px; font-weight: 700; fill: #334155; }
+      .step-label { font-size: 13px; font-weight: 700; fill: #1e3a8a; }
+      .lane-title { font-size: 19px; font-weight: 700; fill: #0f172a; }
+      .lane-sub { font-size: 13px; font-weight: 400; fill: #64748b; }
+      .node-title { font-size: 17px; font-weight: 700; fill: #0f172a; }
+      .node-sub { font-size: 12px; font-weight: 400; fill: #64748b; }
+      .footer { font-size: 13px; font-weight: 400; fill: #64748b; }
+    </style>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#pageBg)"/>
+
+  <!-- Header -->
+  <path d="M0 0 H1920 V145 H0 Z" fill="url(#headerGlow)"/>
+  <circle cx="1760" cy="-5" r="210" fill="#818cf8" opacity="0.12"/>
+  <circle cx="1640" cy="10" r="125" fill="#38bdf8" opacity="0.10"/>
+  <text x="78" y="66" class="title">CardOps Service Architecture</text>
+  <text x="80" y="103" class="subtitle">클라우드 서비스 요청 · 자동 배포 · 머신러닝 분석 흐름</text>
+
+  <g transform="translate(1355,52)">
+    <rect x="0" y="0" width="135" height="38" rx="19" fill="#ffffff" opacity="0.13"/>
+    <circle cx="22" cy="19" r="6" fill="#60a5fa"/>
+    <text x="39" y="24" font-size="13" font-weight="700" fill="#ffffff">서비스 요청</text>
+    <rect x="150" y="0" width="135" height="38" rx="19" fill="#ffffff" opacity="0.13"/>
+    <circle cx="172" cy="19" r="6" fill="#a78bfa"/>
+    <text x="189" y="24" font-size="13" font-weight="700" fill="#ffffff">배포 자동화</text>
+    <rect x="300" y="0" width="150" height="38" rx="19" fill="#ffffff" opacity="0.13"/>
+    <circle cx="322" cy="19" r="6" fill="#fbbf24"/>
+    <text x="339" y="24" font-size="13" font-weight="700" fill="#ffffff">ML · 데이터</text>
+  </g>
+
+  <!-- Section 1 heading -->
+  <text x="80" y="193" class="section-no">01 · PRODUCTION RUNTIME</text>
+  <text x="80" y="227" class="section-title">운영 서비스 요청 흐름</text>
+  <text x="80" y="252" class="section-sub">사용자 요청은 Render의 React 정적 사이트와 FastAPI 웹 서비스를 거쳐 TiDB Cloud에 저장됩니다.</text>
+
+  <!-- Runtime baseline -->
+  <line x1="265" y1="407" x2="1645" y2="407" stroke="#dbeafe" stroke-width="10" stroke-linecap="round"/>
+
+  <!-- User card -->
+  <g filter="url(#softShadow)">
+    <rect x="80" y="298" width="220" height="225" rx="26" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  </g>
+  <circle cx="190" cy="360" r="37" fill="#eff6ff"/>
+  <circle cx="190" cy="348" r="10" fill="none" stroke="#2563eb" stroke-width="4"/>
+  <path d="M166 381 C170 361,210 361,214 381" fill="none" stroke="#2563eb" stroke-width="4" stroke-linecap="round"/>
+  <text x="190" y="430" text-anchor="middle" class="card-title">사용자</text>
+  <text x="190" y="458" text-anchor="middle" class="card-sub">웹 브라우저</text>
+  <rect x="126" y="478" width="128" height="28" rx="14" fill="#eff6ff"/>
+  <text x="190" y="497" text-anchor="middle" class="chip">HTTPS 접속</text>
+
+  <!-- React card -->
+  <g filter="url(#shadow)">
+    <rect x="390" y="278" width="350" height="265" rx="28" fill="url(#reactGrad)" stroke="#38bdf8" stroke-width="2.5"/>
+  </g>
+  <rect x="416" y="302" width="173" height="27" rx="13.5" fill="#0ea5e9"/>
+  <text x="503" y="320" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">RENDER · STATIC SITE</text>
+  <g transform="translate(445,369)">
+    <circle cx="0" cy="0" r="6" fill="#0284c7"/>
+    <ellipse cx="0" cy="0" rx="38" ry="14" fill="none" stroke="#0284c7" stroke-width="3"/>
+    <ellipse cx="0" cy="0" rx="38" ry="14" fill="none" stroke="#0284c7" stroke-width="3" transform="rotate(60)"/>
+    <ellipse cx="0" cy="0" rx="38" ry="14" fill="none" stroke="#0284c7" stroke-width="3" transform="rotate(120)"/>
+  </g>
+  <text x="510" y="365" class="card-title">React</text>
+  <text x="510" y="392" class="card-sub">TypeScript · Vite</text>
+  <line x1="416" y1="425" x2="714" y2="425" stroke="#bae6fd" stroke-width="1.5"/>
+  <circle cx="430" cy="455" r="4" fill="#0ea5e9"/>
+  <text x="445" y="460" class="card-sub">대시보드 · 고객 · 캠페인 화면</text>
+  <circle cx="430" cy="488" r="4" fill="#0ea5e9"/>
+  <text x="445" y="493" class="card-sub">API 응답 시각화</text>
+  <rect x="589" y="302" width="125" height="27" rx="13.5" fill="#ffffff" opacity="0.85"/>
+  <text x="651" y="320" text-anchor="middle" class="chip">frontend</text>
+
+  <!-- FastAPI card -->
+  <g filter="url(#shadow)">
+    <rect x="835" y="258" width="390" height="305" rx="28" fill="url(#apiGrad)" stroke="#10b981" stroke-width="2.5"/>
+  </g>
+  <rect x="861" y="282" width="185" height="27" rx="13.5" fill="#059669"/>
+  <text x="953" y="300" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">RENDER · WEB SERVICE</text>
+  <circle cx="905" cy="365" r="46" fill="#0f9d8a"/>
+  <path d="M883 367 L902 345 L896 363 L927 363 L905 388 L912 370 Z" fill="#ffffff"/>
+  <text x="972" y="360" class="card-title">FastAPI</text>
+  <text x="972" y="388" class="card-sub">Python · Uvicorn</text>
+  <line x1="861" y1="430" x2="1199" y2="430" stroke="#a7f3d0" stroke-width="1.5"/>
+  <g>
+    <rect x="861" y="451" width="101" height="34" rx="17" fill="#ffffff" opacity="0.86"/>
+    <text x="912" y="473" text-anchor="middle" class="chip">인증 · 권한</text>
+    <rect x="971" y="451" width="101" height="34" rx="17" fill="#ffffff" opacity="0.86"/>
+    <text x="1022" y="473" text-anchor="middle" class="chip">REST API</text>
+    <rect x="1081" y="451" width="118" height="34" rx="17" fill="#ffffff" opacity="0.86"/>
+    <text x="1140" y="473" text-anchor="middle" class="chip">ML 추론</text>
+  </g>
+  <rect x="861" y="503" width="338" height="38" rx="12" fill="#ecfdf5" stroke="#6ee7b7"/>
+  <text x="1030" y="528" text-anchor="middle" class="small">SQLAlchemy · PyMySQL · JWT Cookie</text>
+
+  <!-- TiDB card -->
+  <g filter="url(#shadow)">
+    <rect x="1320" y="278" width="450" height="265" rx="28" fill="url(#dbGrad)" stroke="#f97316" stroke-width="2.5"/>
+  </g>
+  <rect x="1346" y="302" width="205" height="27" rx="13.5" fill="#ea580c"/>
+  <text x="1449" y="320" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">TIDB CLOUD · SERVERLESS</text>
+  <g transform="translate(1405,360)">
+    <ellipse cx="0" cy="0" rx="48" ry="16" fill="#fed7aa" stroke="#ea580c" stroke-width="2.5"/>
+    <path d="M-48 0 V62 C-48 72,48 72,48 62 V0" fill="#fff7ed" stroke="#ea580c" stroke-width="2.5"/>
+    <ellipse cx="0" cy="62" rx="48" ry="16" fill="#ffedd5" stroke="#ea580c" stroke-width="2.5"/>
+    <ellipse cx="0" cy="0" rx="48" ry="16" fill="#fed7aa" stroke="#ea580c" stroke-width="2.5"/>
+  </g>
+  <text x="1482" y="365" class="card-title">TiDB Cloud</text>
+  <text x="1482" y="393" class="card-sub">MySQL 호환 운영 DB</text>
+  <line x1="1346" y1="444" x2="1744" y2="444" stroke="#fed7aa" stroke-width="1.5"/>
+  <g>
+    <rect x="1346" y="465" width="92" height="32" rx="16" fill="#ffffff" opacity="0.88"/>
+    <text x="1392" y="486" text-anchor="middle" class="chip">users</text>
+    <rect x="1447" y="465" width="105" height="32" rx="16" fill="#ffffff" opacity="0.88"/>
+    <text x="1499" y="486" text-anchor="middle" class="chip">customers</text>
+    <rect x="1561" y="465" width="183" height="32" rx="16" fill="#ffffff" opacity="0.88"/>
+    <text x="1652" y="486" text-anchor="middle" class="chip">customer_insights</text>
+  </g>
+  <text x="1545" y="523" text-anchor="middle" class="small">campaigns · scoring_batches · TLS</text>
+
+  <!-- Runtime arrows -->
+  <path d="M300 407 H372" fill="none" stroke="#2563eb" stroke-width="4" marker-end="url(#arrowBlue)"/>
+  <circle cx="336" cy="380" r="16" fill="#2563eb"/>
+  <text x="336" y="385" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">1</text>
+  <text x="336" y="444" text-anchor="middle" class="step-label">화면 요청</text>
+
+  <path d="M740 407 H817" fill="none" stroke="#2563eb" stroke-width="4" marker-end="url(#arrowBlue)"/>
+  <circle cx="779" cy="380" r="16" fill="#2563eb"/>
+  <text x="779" y="385" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">2</text>
+  <text x="779" y="444" text-anchor="middle" class="step-label">REST · JSON</text>
+
+  <path d="M1225 407 H1302" fill="none" stroke="#2563eb" stroke-width="4" marker-end="url(#arrowBlue)"/>
+  <circle cx="1264" cy="380" r="16" fill="#2563eb"/>
+  <text x="1264" y="385" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">3</text>
+  <text x="1264" y="444" text-anchor="middle" class="step-label">SQL · TLS</text>
+
+  <!-- Section 2 heading -->
+  <text x="80" y="628" class="section-no" fill="#7c3aed">02 · DELIVERY &amp; LOCAL ML</text>
+  <text x="80" y="662" class="section-title">코드 배포와 모델 생성 흐름</text>
+  <text x="80" y="687" class="section-sub">GitHub main 브랜치는 Render 배포로 이어지고, Docker Compose는 로컬 개발과 모델 생성을 분리합니다.</text>
+
+  <!-- Delivery lane -->
+  <g filter="url(#softShadow)">
+    <rect x="80" y="720" width="1760" height="120" rx="24" fill="url(#deployGrad)" stroke="#c4b5fd" stroke-width="1.5"/>
+  </g>
+  <rect x="104" y="744" width="210" height="72" rx="18" fill="#ffffff" opacity="0.88"/>
+  <circle cx="139" cy="780" r="19" fill="#ede9fe"/>
+  <path d="M130 780 H148 M139 771 V789" stroke="#7c3aed" stroke-width="3" stroke-linecap="round"/>
+  <text x="171" y="775" class="lane-title">배포 자동화</text>
+  <text x="171" y="797" class="lane-sub">Git push → 운영 반영</text>
+
+  <g>
+    <rect x="380" y="745" width="230" height="70" rx="18" fill="#ffffff" stroke="#ddd6fe"/>
+    <circle cx="421" cy="780" r="23" fill="#e2e8f0"/>
+    <text x="421" y="786" text-anchor="middle" font-size="18" font-weight="700" fill="#334155">DEV</text>
+    <text x="459" y="777" class="node-title">개발자 PC</text>
+    <text x="459" y="798" class="node-sub">Git commit · push</text>
+
+    <rect x="745" y="745" width="230" height="70" rx="18" fill="#ffffff" stroke="#ddd6fe"/>
+    <circle cx="786" cy="780" r="23" fill="#24292f"/>
+    <text x="786" y="786" text-anchor="middle" font-size="14" font-weight="700" fill="#ffffff">GH</text>
+    <text x="824" y="777" class="node-title">GitHub</text>
+    <text x="824" y="798" class="node-sub">main 브랜치 · 소스 저장</text>
+
+    <rect x="1110" y="745" width="250" height="70" rx="18" fill="#ffffff" stroke="#ddd6fe"/>
+    <circle cx="1151" cy="780" r="23" fill="#111827"/>
+    <path d="M1140 780 Q1151 765 1162 780 Q1151 795 1140 780" fill="#6ee7b7"/>
+    <text x="1190" y="777" class="node-title">Render Build</text>
+    <text x="1190" y="798" class="node-sub">자동 빌드 · 자동 배포</text>
+
+    <rect x="1495" y="745" width="265" height="70" rx="18" fill="#ffffff" stroke="#ddd6fe"/>
+    <circle cx="1536" cy="780" r="23" fill="#ede9fe"/>
+    <path d="M1525 782 L1534 791 L1548 769" fill="none" stroke="#7c3aed" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="1575" y="777" class="node-title">운영 서비스 갱신</text>
+    <text x="1575" y="798" class="node-sub">React + FastAPI</text>
+  </g>
+  <path d="M610 780 H727" fill="none" stroke="#7c3aed" stroke-width="3" marker-end="url(#arrowViolet)"/>
+  <path d="M975 780 H1092" fill="none" stroke="#7c3aed" stroke-width="3" marker-end="url(#arrowViolet)"/>
+  <path d="M1360 780 H1477" fill="none" stroke="#7c3aed" stroke-width="3" marker-end="url(#arrowViolet)"/>
+
+  <!-- Local ML lane -->
+  <g filter="url(#softShadow)">
+    <rect x="80" y="864" width="1760" height="120" rx="24" fill="url(#localGrad)" stroke="#fed7aa" stroke-width="1.5"/>
+  </g>
+  <rect x="104" y="888" width="210" height="72" rx="18" fill="#ffffff" opacity="0.88"/>
+  <circle cx="139" cy="924" r="19" fill="#ffedd5"/>
+  <path d="M127 927 H151 M132 919 H146 M136 911 H142" fill="none" stroke="#d97706" stroke-width="3" stroke-linecap="round"/>
+  <text x="171" y="919" class="lane-title">로컬 개발</text>
+  <text x="171" y="941" class="lane-sub">Docker Compose 환경</text>
+
+  <g>
+    <rect x="380" y="889" width="260" height="70" rx="18" fill="#ffffff" stroke="#fed7aa"/>
+    <circle cx="421" cy="924" r="23" fill="#dbeafe"/>
+    <text x="421" y="930" text-anchor="middle" font-size="16" font-weight="700" fill="#2563eb">DK</text>
+    <text x="459" y="921" class="node-title">Docker Compose</text>
+    <text x="459" y="942" class="node-sub">React · FastAPI · MySQL 8.4</text>
+
+    <rect x="770" y="889" width="270" height="70" rx="18" fill="#ffffff" stroke="#fed7aa"/>
+    <circle cx="811" cy="924" r="23" fill="#fef3c7"/>
+    <text x="811" y="930" text-anchor="middle" font-size="15" font-weight="700" fill="#b45309">ML</text>
+    <text x="849" y="921" class="node-title">Model Builder</text>
+    <text x="849" y="942" class="node-sub">학습 · 검증 · 아티팩트 생성</text>
+
+    <rect x="1170" y="889" width="270" height="70" rx="18" fill="#ffffff" stroke="#fed7aa"/>
+    <circle cx="1211" cy="924" r="23" fill="#fef3c7"/>
+    <path d="M1201 913 H1217 L1223 919 V937 H1201 Z M1217 913 V920 H1223" fill="none" stroke="#d97706" stroke-width="2.3" stroke-linejoin="round"/>
+    <text x="1249" y="921" class="node-title">Model Artifacts</text>
+    <text x="1249" y="942" class="node-sub">joblib · ONNX · manifest</text>
+
+    <rect x="1570" y="889" width="190" height="70" rx="18" fill="#ffffff" stroke="#fed7aa"/>
+    <circle cx="1611" cy="924" r="23" fill="#d1fae5"/>
+    <path d="M1600 926 L1609 915 L1606 924 H1622 L1611 936 L1614 927 Z" fill="#059669"/>
+    <text x="1649" y="921" class="node-title">FastAPI</text>
+    <text x="1649" y="942" class="node-sub">모델 로드 · 추론</text>
+  </g>
+  <path d="M640 924 H752" fill="none" stroke="#d97706" stroke-width="3" marker-end="url(#arrowAmber)"/>
+  <path d="M1040 924 H1152" fill="none" stroke="#d97706" stroke-width="3" marker-end="url(#arrowAmber)"/>
+  <path d="M1440 924 H1552" fill="none" stroke="#d97706" stroke-width="3" marker-end="url(#arrowAmber)"/>
+
+  <text x="80" y="1032" class="footer">운영 DB: TiDB Cloud · 로컬 DB: Docker MySQL · Nginx 없이 Render가 정적 사이트와 웹 서비스를 각각 호스팅</text>
+  <text x="1840" y="1032" text-anchor="end" class="footer">SKN34-2nd-4Team · CardOps</text>
+</svg>

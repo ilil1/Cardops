@@ -1,0 +1,18 @@
+# Notebook runtime
+jupyterlab>=4,<5
+ipykernel>=6,<9
+
+# Data analysis and visualization
+numpy>=2,<3
+pandas>=2.2,<4
+matplotlib>=3.8,<4
+seaborn>=0.13,<0.14
+streamlit>=1.41,<2
+altair>=5,<7
+
+# Machine learning
+scikit-learn>=1.5,<2
+xgboost>=2.1,<4
+joblib>=1.4,<2
+lightgbm>=4.7,<5
+optuna>=4,<5

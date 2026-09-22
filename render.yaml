@@ -1,0 +1,58 @@
+services:
+  - type: web
+    runtime: python
+    name: cardops-backend
+    region: singapore
+    plan: free
+    buildCommand: sh backend/render-build.sh
+    startCommand: sh backend/render-start.sh
+    healthCheckPath: /live
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.13.5"
+      - key: APP_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+        # Render Dashboard에 아래 형식의 TiDB 연결 문자열을 입력합니다.
+        # mysql+pymysql://3e55CQyDJDL7RoK.root:PASTE_NEW_TIDB_PASSWORD@gateway01.ap-northeast-1.prod.aws.tidbcloud.com:4000/test?ssl_ca=<CA_PATH>&ssl_verify_cert=true&ssl_verify_identity=true
+      - key: JWT_SECRET
+        generateValue: true
+      - key: AUTH_COOKIE_SECURE
+        value: "true"
+      - key: CORS_ORIGINS
+        sync: false
+      - key: MODEL_DIR
+        value: outputs/models
+      - key: RENDER_BUILD_MODELS
+        value: "true"
+      - key: ALLOW_TEST_USER_SEEDING
+        value: "false"
+      - key: POC_SEED_ON_START
+        value: "false"
+      - key: POC_SEED_CAMPAIGNS
+        value: "true"
+      - key: POC_SEED_LIMIT
+        value: "40"
+      - key: TEST_ADMIN_PASSWORD
+        sync: false
+      - key: TEST_ANALYST_PASSWORD
+        sync: false
+      - key: TEST_OPERATIONS_PASSWORD
+        sync: false
+      - key: TEST_MARKETING_PASSWORD
+        sync: false
+
+  - type: web
+    runtime: static
+    name: cardops-frontend
+    rootDir: frontend
+    buildCommand: corepack enable && corepack prepare pnpm@11.9.0 --activate && pnpm install --frozen-lockfile && pnpm build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        sync: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

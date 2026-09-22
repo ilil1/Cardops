@@ -1,0 +1,180 @@
+/* 얼굴 인증 전용 스타일 — FaceLoginPanel/FaceAuthLauncher가 직접 import
+   합니다. global.css를 수정하지 않기 위한 분리입니다. */
+
+.face-auth-button {
+  width: 100%;
+  min-height: 52px;
+  margin-top: 12px;
+  color: var(--primary-dark);
+  border: 1px solid #d9dcf3;
+  border-radius: 13px;
+  background: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.face-auth-button:hover {
+  color: var(--primary);
+  border-color: #aeb2eb;
+  background: #f8f8ff;
+}
+
+.face-auth-inline-error {
+  display: block;
+  margin-top: 8px;
+  color: #c0334d;
+  font-size: 12px;
+}
+
+.face-panel-overlay {
+  position: fixed;
+  z-index: 60;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(23, 26, 48, 0.55);
+}
+
+.face-panel {
+  width: min(460px, 100%);
+  padding: 22px;
+  border: 1px solid #e3e5f2;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 24px 60px rgba(23, 26, 48, 0.25);
+}
+
+.face-panel__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.face-panel__heading h2 {
+  margin: 0;
+  color: var(--navy);
+  font-size: 18px;
+}
+
+.face-panel__close {
+  width: 34px;
+  height: 34px;
+  color: var(--muted);
+  border: 1px solid #e3e5f2;
+  border-radius: 10px;
+  background: #ffffff;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.face-panel__close:hover {
+  color: var(--navy);
+  background: #f5f5ff;
+}
+
+.face-panel__video-wrap {
+  margin-top: 14px;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #10122a;
+  aspect-ratio: 4 / 3;
+}
+
+.face-panel__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+
+.face-panel__hint {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.face-panel__action {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 14px;
+  color: #ffffff;
+  border: 0;
+  border-radius: 12px;
+  background: var(--primary);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.face-panel__action:hover {
+  background: var(--primary-dark);
+}
+
+.face-panel__action:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.face-panel__notice {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  color: var(--navy);
+  border-radius: 10px;
+  background: #f4f5ff;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.face-panel__error {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  color: #a02a3c;
+  border-radius: 10px;
+  background: #fdeef1;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.face-panel__caveat {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+.face-panel__status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0 0;
+  padding: 11px 14px;
+  color: var(--navy);
+  border-radius: 12px;
+  background: #f4f5ff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.face-panel__spinner {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  border: 2px solid #c9cbf2;
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: face-panel-spin 0.9s linear infinite;
+}
+
+@keyframes face-panel-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

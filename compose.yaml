@@ -1,0 +1,103 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: cardops-mysql
+    restart: unless-stopped
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-cardops}
+      MYSQL_USER: ${MYSQL_USER:-cardops_app}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env}
+    volumes:
+      - cardops_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
+  model-builder:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: cardops-model-builder
+    working_dir: /app
+    restart: "no"
+    environment:
+      FORCE_MODEL_REBUILD: ${FORCE_MODEL_REBUILD:-false}
+    command:
+      - sh
+      - -c
+      - |
+        python -m backend.scripts.download_face_models
+
+        if [ "$${FORCE_MODEL_REBUILD}" = "true" ] || \
+           [ ! -f /app/outputs/models/classification_manifest.json ] || \
+           ! grep -q '"artifact": "classification_lightgbm_final.joblib"' /app/outputs/models/classification_manifest.json || \
+           [ ! -f /app/outputs/models/classification_lightgbm_final.joblib ] || \
+           [ ! -f /app/outputs/models/regression_model.joblib ] || \
+           [ ! -f /app/outputs/models/clustering_activity_gap.joblib ]; then
+          python src/classification.py &&
+          python src/final/classification_final.py &&
+          python src/final/regression_final.py &&
+          python src/final/clustering_final.py
+        else
+          echo "Final model artifacts already exist; skipping model training."
+        fi
+    volumes:
+      - ./src:/app/src:ro
+      - ./data:/app/data:ro
+      - ./outputs:/app/outputs
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: cardops-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      DATABASE_URL: mysql+pymysql://${MYSQL_USER:-cardops_app}:${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env}@mysql:3306/${MYSQL_DATABASE:-cardops}
+      MODEL_DIR: /app/outputs/models
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
+      AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-false}
+      ALLOW_TEST_USER_SEEDING: ${ALLOW_TEST_USER_SEEDING:-true}
+      LOGIN_MAX_ATTEMPTS: ${LOGIN_MAX_ATTEMPTS:-5}
+      LOGIN_IP_MAX_ATTEMPTS: ${LOGIN_IP_MAX_ATTEMPTS:-30}
+      LOGIN_RATE_WINDOW_SECONDS: ${LOGIN_RATE_WINDOW_SECONDS:-900}
+      TEST_ADMIN_PASSWORD: "${TEST_ADMIN_PASSWORD:-CardOpsAdmin2026!}"
+      TEST_ANALYST_PASSWORD: "${TEST_ANALYST_PASSWORD:-CardOpsAnalyst2026!}"
+      TEST_OPERATIONS_PASSWORD: "${TEST_OPERATIONS_PASSWORD:-CardOpsOps2026!}"
+      TEST_MARKETING_PASSWORD: "${TEST_MARKETING_PASSWORD:-CardOpsMarketing2026!}"
+    volumes:
+      - ./outputs/models:/app/outputs/models:ro
+      - ./data:/app/data:ro
+      # 원본(data/raw)은 읽기 전용으로 두고, 합성 데이터셋 사용하게 변경
+      - ./data/synthetic:/app/data/synthetic
+    depends_on:
+      mysql:
+        condition: service_healthy
+      model-builder:
+        condition: service_completed_successfully
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: cardops-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_HOST: 0.0.0.0
+      VITE_API_PROXY_TARGET: http://backend:8000
+    depends_on:
+      - backend
+
+volumes:
+  cardops_mysql_data:
