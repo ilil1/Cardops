@@ -1,15 +1,13 @@
 services:
   - type: web
-    runtime: python
+    runtime: docker
     name: cardops-backend
     region: singapore
     plan: free
-    buildCommand: sh backend/render-build.sh
-    startCommand: sh backend/render-start.sh
-    healthCheckPath: /live
+    dockerfilePath: ./backend/nest/Dockerfile
+    dockerContext: .
+    healthCheckPath: /ready
     envVars:
-      - key: PYTHON_VERSION
-        value: "3.13.5"
       - key: APP_ENV
         value: production
       - key: DATABASE_URL

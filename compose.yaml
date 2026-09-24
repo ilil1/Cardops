@@ -54,8 +54,10 @@ services:
 
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: backend/nest/Dockerfile
+      args:
+        RENDER_BUILD_MODELS: "false"
     container_name: cardops-backend
     restart: unless-stopped
     ports:

@@ -1,0 +1,14 @@
+.git
+.agents
+.codex
+**/node_modules
+**/__pycache__
+**/.pytest_cache
+**/.venv
+project_venv
+**/dist
+notebooks
+docs
+dashboard
+outputs/*
+!outputs/README.md

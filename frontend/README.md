@@ -41,7 +41,7 @@
 모델 성능 화면은 기존 Streamlit 앱으로 별도 실행할 수 있으며, 고객 분석
 대시보드는 저장된 분석 결과와 운영 업무 처리에 집중합니다.
 
-로그인과 회원가입은 `/api/v1/auth` 아래의 FastAPI API를 호출합니다. 분석 결과는
+로그인과 회원가입은 `/api/v1/auth` 아래의 NestJS API를 호출합니다. 분석 결과는
 `/api/v1/customer-insights` API 클라이언트로 조회할 수 있습니다. Backend는
 비밀번호를 Argon2로 해시하고 로그인 성공 시 JavaScript에서 읽을 수 없는
 HttpOnly 쿠키를 발급합니다. Frontend는 쿠키를 직접 저장하지 않고
@@ -60,9 +60,9 @@ HttpOnly 쿠키를 발급합니다. Frontend는 쿠키를 직접 저장하지 �
 | ESLint 10 | 실수하기 쉬운 코드와 규칙 위반 검사 |
 | Vitest 4 | 단위 테스트 실행 |
 | Testing Library | 실제 사용자의 클릭과 입력에 가까운 방식으로 화면 테스트 |
-| openapi-typescript | FastAPI OpenAPI 문서를 TypeScript 타입으로 변환 |
+| openapi-typescript | NestJS OpenAPI 문서를 TypeScript 타입으로 변환 |
 
-`project_venv`는 Python과 FastAPI를 위한 가상환경입니다. React 실행에 필요한
+`project_venv`는 Python 모델과 배치 작업을 위한 가상환경입니다. React 실행에 필요한
 Node.js와 pnpm은 `project_venv`에 포함되지 않으므로 별도로 설치해야 합니다.
 
 ## 3. 처음 실행하는 방법
@@ -200,7 +200,7 @@ frontend/
 | `src/api/insights.ts` | 고객 분석 목록·상세·이력 API 호출 | 분석 조회 API 변경 |
 | `src/api/modelRuns.ts` | 최신 모델 배치 상태 API 호출 | 배치 상태 표시 변경 |
 | `src/api/campaigns.ts` | 캠페인 대상 조회·등록·처리 API 호출 | 캠페인 업무 흐름 변경 |
-| `src/api/schema.d.ts` | FastAPI에서 생성한 API 요청·응답 타입 | 직접 수정하지 않고 명령으로 재생성 |
+| `src/api/schema.d.ts` | OpenAPI에서 생성한 API 요청·응답 타입 | 직접 수정하지 않고 명령으로 재생성 |
 | `src/test/setup.ts` | 모든 테스트에 공통 적용되는 준비 코드 | 테스트 라이브러리 설정 변경 |
 | `vite.config.ts` | 개발 서버, 프록시와 Vitest 설정 | 포트나 백엔드 주소 변경 |
 | `package.json` | 패키지 버전과 실행 명령 정의 | 라이브러리나 script 추가 |
@@ -373,7 +373,7 @@ FormData로 accountId와 password 읽기
 제거합니다.
 
 인증 요청은 `src/api/auth.ts`에 모아 두고, 화면 컴포넌트는 상대 경로로 API를
-호출합니다. Vite 개발 프록시가 `/api` 요청을 FastAPI로 전달합니다.
+호출합니다. Vite 개발 프록시가 `/api` 요청을 NestJS로 전달합니다.
 
 ## 8. 스타일 수정 방법
 
@@ -481,9 +481,9 @@ pnpm build
 `pnpm build`가 성공해야 실제 배포에 사용할 수 있는 상태라고 볼 수 있습니다.
 생성되는 `dist/`는 빌드 결과물이므로 직접 수정하거나 Git에 추가하지 않습니다.
 
-## 12. FastAPI와 연결하는 방법
+## 12. NestJS와 연결하는 방법
 
-Vite 개발 서버는 아래 요청을 `http://127.0.0.1:8000`의 FastAPI로 전달합니다.
+Vite 개발 서버는 아래 요청을 `http://127.0.0.1:8000`의 NestJS로 전달합니다.
 
 ```text
 /api/*
@@ -491,7 +491,7 @@ Vite 개발 서버는 아래 요청을 `http://127.0.0.1:8000`의 FastAPI로 전
 /ready
 ```
 
-브라우저 코드에서는 FastAPI 주소를 직접 작성하지 않고 상대 경로를 사용합니다.
+브라우저 코드에서는 NestJS 주소를 직접 작성하지 않고 상대 경로를 사용합니다.
 
 ```ts
 const response = await fetch("/api/v1/predictions", {
@@ -508,7 +508,7 @@ const response = await fetch("/api/v1/predictions", {
 ```text
 React: http://127.0.0.1:5173/api/v1/predictions
                         ↓ Vite proxy
-FastAPI: http://127.0.0.1:8000/api/v1/predictions
+NestJS: http://127.0.0.1:8000/api/v1/predictions
 ```
 
 프록시 설정은 `vite.config.ts`에서 확인할 수 있습니다.
@@ -524,15 +524,15 @@ FastAPI: http://127.0.0.1:8000/api/v1/predictions
 | `PATCH` | `/api/v1/auth/users/{user_id}` | 관리자 전용 역할·활성 상태 변경 |
 | `POST` | `/api/v1/auth/logout` | 인증 쿠키 삭제 |
 
-## 13. FastAPI 타입 가져오기
+## 13. NestJS 타입 가져오기
 
-FastAPI가 제공하는 요청·응답 구조를 TypeScript 타입으로 자동 생성할 수
+NestJS가 제공하는 요청·응답 구조를 TypeScript 타입으로 자동 생성할 수
 있습니다.
 
-먼저 프로젝트 루트에서 FastAPI를 실행합니다.
+먼저 프로젝트 루트에서 백엔드를 실행합니다.
 
 ```powershell
-.\project_venv\Scripts\python.exe -m uvicorn backend.app.main:app --reload
+docker compose up -d --build backend
 ```
 
 다른 PowerShell을 열고 프론트엔드 디렉터리에서 실행합니다.
@@ -549,7 +549,7 @@ src/api/schema.d.ts
 ```
 
 이 파일은 자동 생성 파일이므로 직접 수정하지 않습니다. 백엔드 API 구조가
-바뀌면 FastAPI를 실행한 상태에서 `pnpm generate:api`를 다시 실행합니다.
+바뀌면 NestJS를 실행한 상태에서 `pnpm generate:api`를 다시 실행합니다.
 
 ## 14. 자주 발생하는 문제
 
@@ -582,11 +582,11 @@ PowerShell을 확인하고 그 주소를 사용하거나 기존 서버를 `Ctrl+
 
 ### 로그인 화면은 열리지만 API 요청이 실패합니다
 
-현재 로그인 화면 자체는 FastAPI 없이 열 수 있습니다. 예측 API를 호출할 때는
-FastAPI도 별도 PowerShell에서 실행해야 합니다.
+현재 로그인 화면 자체는 백엔드 없이 열 수 있습니다. 예측 API를 호출할 때는
+NestJS 백엔드도 실행해야 합니다.
 
 ```powershell
-.\project_venv\Scripts\python.exe -m uvicorn backend.app.main:app --reload
+docker compose up -d --build backend
 ```
 
 다음 주소가 정상인지 확인합니다.

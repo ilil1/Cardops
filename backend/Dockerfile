@@ -15,6 +15,6 @@ RUN apt-get update \
 
 COPY . /app/backend
 
-EXPOSE 8000
-
-CMD ["sh", "/app/backend/docker-entrypoint.sh"]
+# This image is used by the one-shot model-builder service. The public HTTP
+# server is built from backend/nest/Dockerfile.
+CMD ["python", "-m", "backend.inference_worker"]

@@ -78,7 +78,7 @@ CardOps는 신용카드 고객 데이터를 바탕으로 고객의 이탈 가능
 4. 회귀 모델로 고객별 예상 거래건수를 계산하고 실제 거래건수와의 차이인 활동성 갭을 산출합니다.
 5. 군집 모델로 행동과 신용여력, 활동성 갭이 유사한 고객을 세분화합니다.
 6. 기본 모델, 특징공학 모델, 하이퍼파라미터 탐색 결과를 비교해 과제별 최종 모델을 선정합니다.
-7. React, FastAPI, TiDB Cloud를 연동해 고객 분석 결과를 조회하고 활용할 수 있는 서비스를 구현합니다.
+7. React, NestJS, TiDB Cloud를 연동해 고객 분석 결과를 조회하고 활용할 수 있는 서비스를 구현합니다.
 8. GitHub와 Render를 이용해 프론트엔드와 백엔드를 배포하고, Docker Compose로 재현 가능한 로컬 개발 환경을 구성합니다.
 
 ## 📌 데이터 소개
@@ -115,7 +115,7 @@ CardOps는 신용카드 고객 데이터를 바탕으로 고객의 이탈 가능
   </tr>
   <tr>
     <th>Backend &amp; DB</th>
-    <td><img src="https://img.shields.io/badge/Python-3670A0?style=flat-square&logo=python&logoColor=ffdd54"/> <img src="https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white"/> <img src="https://img.shields.io/badge/SQLAlchemy-D71F00?style=flat-square&logo=sqlalchemy&logoColor=white"/> <img src="https://img.shields.io/badge/MySQL_8.4-4479A1?style=flat-square&logo=mysql&logoColor=white"/> <img src="https://img.shields.io/badge/TiDB_Cloud-ED1C24?style=flat-square&logo=tidb&logoColor=white"/></td>
+    <td><img src="https://img.shields.io/badge/NestJS-E0234E?style=flat-square&logo=nestjs&logoColor=white"/> <img src="https://img.shields.io/badge/Python-3670A0?style=flat-square&logo=python&logoColor=ffdd54"/> <img src="https://img.shields.io/badge/SQLAlchemy-D71F00?style=flat-square&logo=sqlalchemy&logoColor=white"/> <img src="https://img.shields.io/badge/MySQL_8.4-4479A1?style=flat-square&logo=mysql&logoColor=white"/> <img src="https://img.shields.io/badge/TiDB_Cloud-ED1C24?style=flat-square&logo=tidb&logoColor=white"/></td>
   </tr>
   <tr>
     <th>Data &amp; ML</th>
@@ -131,29 +131,36 @@ CardOps는 신용카드 고객 데이터를 바탕으로 고객의 이탈 가능
 
 # 4. 시스템 아키텍처
 
-<div align="center">
-  <img src="./docs/image/cardops-architecture-flow.png" width="100%" alt="CardOps 시스템 아키텍처" />
-</div>
+```mermaid
+flowchart LR
+    Browser[React 프론트엔드] -->|REST API| Nest[NestJS 백엔드]
+    Nest -->|인증·조회·캠페인 데이터| DB[(MySQL / TiDB Cloud)]
+    Nest -->|프로세스 간 JSON 메시지| Worker[Python 추론 프로세스]
+    Worker --> Models[(joblib / ONNX 모델)]
+    Batch[Python 고객 분석 배치] --> DB
+    Batch --> Models
+    Alembic[Alembic 마이그레이션] --> DB
+```
 
 ## 📌 운영 서비스 흐름
 
 1. 사용자는 웹 브라우저를 통해 Render의 **Static Site**로 배포된 React 프론트엔드에 접속합니다.
-2. React 프론트엔드는 Render의 **Web Service**로 실행되는 FastAPI 백엔드에 REST API 요청을 보내고 JSON 형식의 응답을 받습니다.
-3. FastAPI는 사용자 인증과 권한 관리, 고객 및 캠페인 API, 머신러닝 모델 추론을 담당합니다.
-4. FastAPI는 SQLAlchemy와 PyMySQL을 이용해 TiDB Cloud에 연결하며, 사용자·고객·분석 결과·캠페인 데이터를 조회하거나 저장합니다.
+2. React 프론트엔드는 Render의 **Web Service**로 실행되는 NestJS 백엔드에 REST API 요청을 보냅니다.
+3. NestJS는 인증·권한 관리, 고객 분석 조회와 캠페인 업무를 처리하고 MySQL 호환 DB에 연결합니다.
+4. 분류·얼굴 추론은 HTTP 포트를 열지 않는 Python 모델 프로세스가 처리하며, 전체 고객 분석 배치와 Alembic 마이그레이션도 Python으로 실행합니다.
 
 ## 📌 배포 흐름
 
 - 개발자가 코드를 GitHub `main` 브랜치에 반영하면 Render가 변경된 코드를 가져와 자동으로 빌드하고 배포합니다.
-- 프론트엔드는 React 정적 사이트, 백엔드는 FastAPI 웹 서비스로 각각 분리해 배포합니다.
+- 프론트엔드는 React 정적 사이트, 백엔드는 NestJS Docker 웹 서비스로 각각 분리해 배포합니다.
 - 애플리케이션은 Render에서 실행하고 운영 데이터베이스는 MySQL 호환 클라우드 데이터베이스인 TiDB Cloud에서 관리합니다.
 - 현재 프로젝트는 Nginx를 별도로 구성하지 않으며, 정적 사이트 제공과 외부 HTTPS 연결은 Render가 담당합니다.
 
 ## 📌 로컬 개발 및 머신러닝 흐름
 
-- Docker Compose로 React, FastAPI, MySQL 8.4, Model Builder를 함께 실행해 팀원이 동일한 로컬 개발 환경을 재현할 수 있습니다.
-- Model Builder는 분류·회귀·군집 모델을 학습하고 검증한 뒤 FastAPI가 사용할 `joblib`, `ONNX`, manifest 형식의 모델 아티팩트를 생성합니다.
-- FastAPI는 생성된 모델 아티팩트를 불러와 고객 이탈 확률, 예상 거래건수, 활동성 갭, 고객 군집 등의 분석 결과를 제공합니다.
+- Docker Compose로 React, NestJS, MySQL 8.4, Model Builder를 함께 실행합니다.
+- Model Builder는 분류·회귀·군집 모델을 학습하고 검증한 뒤 Python 추론 프로세스가 사용할 `joblib`, `ONNX`, manifest 형식의 모델 아티팩트를 생성합니다.
+- NestJS가 Python 추론 프로세스의 예측 결과와 데이터베이스의 고객 분석 결과를 API로 제공합니다.
 - 로컬 MySQL과 운영 TiDB Cloud는 서로 분리되어 있으며, `DATABASE_URL` 설정에 따라 백엔드가 사용할 데이터베이스가 결정됩니다.
 
 <br />
@@ -194,7 +201,7 @@ CardOps는 신용카드 고객 데이터를 바탕으로 고객의 이탈 가능
 
 ```text
 CardOps/
-├── backend/       # FastAPI 백엔드, DB 마이그레이션, 시드·배치
+├── backend/       # NestJS API, Python 모델 프로세스, DB 마이그레이션·배치
 ├── frontend/      # React·TypeScript 프론트엔드
 ├── src/           # 머신러닝 학습, 모델 코드
 ├── data/          # 원천·정제·합성 데이터

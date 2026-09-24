@@ -42,12 +42,12 @@ Backend 컨테이너  ──> mysql:3306
 | 서비스 | 역할 | 이미지/실행 환경 |
 | --- | --- | --- |
 | `mysql` | 회원 및 애플리케이션 데이터 저장 | MySQL 8.4 |
-| `backend` | FastAPI API와 머신러닝 모델 제공 | Python 3.13 |
+| `backend` | NestJS API와 Python 모델 추론 | Node.js 24, Python 3.13 |
 | `frontend` | React/Vite 웹 화면 제공 | Node.js 24, pnpm 11 |
 
 모델은 별도 컨테이너로 실행하지 않습니다. 호스트의
 `outputs/models` 디렉터리를 Backend 컨테이너에 읽기 전용으로 마운트하고,
-FastAPI가 컨테이너 시작 시 모델을 로드합니다.
+NestJS가 시작할 때 Python 추론 프로세스를 기동하고 모델을 로드합니다.
 
 ## 2. 사전 준비
 
@@ -148,9 +148,9 @@ docker compose exec backend python -m backend.scripts.seed_test_users
 | 대상 | 주소 | 용도 |
 | --- | --- | --- |
 | Frontend | <http://127.0.0.1:5173> | React 화면 |
-| FastAPI Swagger | <http://127.0.0.1:8000/docs> | API 확인 |
-| FastAPI 생존 확인 | <http://127.0.0.1:8000/live> | 프로세스 상태 확인 |
-| FastAPI 준비 확인 | <http://127.0.0.1:8000/ready> | 모델 적재 상태 확인 |
+| NestJS Swagger | <http://127.0.0.1:8000/docs> | API 확인 |
+| NestJS 생존 확인 | <http://127.0.0.1:8000/live> | 프로세스 상태 확인 |
+| NestJS 준비 확인 | <http://127.0.0.1:8000/ready> | 모델 적재 상태 확인 |
 | MySQL | `127.0.0.1:3307` | Mac에서 직접 접속 |
 
 간단한 API 확인 명령은 다음과 같습니다.
@@ -186,14 +186,14 @@ Mac 호스트:3307 → MySQL 컨테이너:3306
 
 | Backend 실행 위치 | DB 주소 |
 | --- | --- |
-| Mac에서 FastAPI를 직접 실행 | `127.0.0.1:3307` |
+| Mac에서 NestJS를 직접 실행 | `127.0.0.1:3307` |
 | Docker Backend 컨테이너에서 실행 | `mysql:3306` |
 
 `mysql`은 Docker Compose 내부 네트워크에서 사용하는 MySQL 서비스 이름입니다.
 Mac 터미널에서는 `mysql:3306`을 사용할 수 없고, Docker Backend에서는
 `127.0.0.1:3307`을 사용하면 안 됩니다.
 
-`.env`의 `DATABASE_URL`은 호스트에서 FastAPI를 직접 실행할 때 사용하는 주소입니다.
+`.env`의 `DATABASE_URL`은 호스트에서 NestJS를 직접 실행할 때 사용하는 주소입니다.
 Compose로 Backend를 실행할 때는 `compose.yaml`이 내부 주소인
 `mysql:3306`을 Backend에 주입합니다.
 
@@ -273,7 +273,7 @@ Frontend `5173` 또는 Backend `8000`이 사용 중이면 `compose.yaml`의 호�
 현재 Docker 구성은 다음 실행 기반을 제공합니다.
 
 - MySQL 컨테이너 실행 및 데이터 보존
-- FastAPI Backend 실행
+- NestJS Backend 실행
 - 분류 모델 로드 및 예측 API 제공
 - React/Vite Frontend 실행
 - Frontend에서 Backend로의 API 프록시

@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | `mysql` | 회원·고객·분석 결과 저장 | 계속 실행 |
 | `model-builder` | 최종 분류·회귀·군집 모델 생성 | 작업 후 `Exited (0)` |
-| `backend` | FastAPI API와 모델 추론 | 계속 실행 |
+| `backend` | NestJS API와 Python 모델 추론 프로세스 | 계속 실행 |
 | `frontend` | React/Vite 화면 | 계속 실행 |
 
 모델 생성 순서는 다음과 같습니다.
@@ -21,7 +21,7 @@ src/classification.py
   → classification_manifest.json 갱신
   → src/final/regression_final.py
   → src/final/clustering_final.py
-  → Backend 시작
+  → NestJS Backend 시작
 ```
 
 `outputs/`는 호스트 디렉터리를 컨테이너에 마운트합니다. 따라서 생성된 모델과
@@ -188,7 +188,7 @@ docker compose exec backend python -m backend.scripts.run_analysis_batch
 ## 접속 주소와 로그
 
 - Frontend: <http://localhost:5173>
-- FastAPI Swagger: <http://localhost:8000/docs>
+- NestJS Swagger: <http://localhost:8000/docs>
 - Liveness: <http://localhost:8000/live>
 - Readiness: <http://localhost:8000/ready>
 
