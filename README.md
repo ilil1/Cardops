@@ -119,9 +119,45 @@ flowchart LR
 
 ### Synchrony — 시간순 해지 예측 실험
 
-데이터는 [chawanaryan19의 Synchrony Analytics Hackathon 2026 참가 프로젝트](https://github.com/chawanaryan19/Customer-and-Credit-Card-Analysis---Declining-Share-of-Wallet)에 공개된 `Datasets.zip`을 사용합니다. 출처·다운로드·파일 구성·해시는 [데이터 README](data/README.md)에 정리했습니다.
+#### 데이터셋 출처와 다운로드
 
-고객 45,000명과 2024-08-01부터 2026-07-31까지의 거래 기록 446,425행을 사용합니다. 고객 ID로 거래·카드 발급일·해지일을 연결해 기준일별 입력과 이후 정답을 만듭니다. 거래 관측 범위는 해당 제휴몰입니다.
+GitHub 사용자 **chawanaryan19**가 공개한 프로젝트의 `Datasets.zip`을 사용합니다. 작성자는 이 프로젝트를 **Synchrony Analytics Hackathon 2026**의 제휴 신용카드 이용 비중(Share of Wallet) 감소와 고객 세분화를 분석한 작업으로 소개합니다. CardOps가 원본을 확보한 경로는 해당 참가자의 공개 저장소입니다.
+
+- [공개 저장소와 데이터 설명](https://github.com/chawanaryan19/Customer-and-Credit-Card-Analysis---Declining-Share-of-Wallet)
+- [원본 ZIP 다운로드](https://raw.githubusercontent.com/chawanaryan19/Customer-and-Credit-Card-Analysis---Declining-Share-of-Wallet/main/Datasets.zip)
+- [저장소에 포함된 대회 문제 설명서](https://github.com/chawanaryan19/Customer-and-Credit-Card-Analysis---Declining-Share-of-Wallet/blob/main/Problem%20Statement.pdf)
+
+#### 원본 구성과 규모
+
+다음 값은 **로컬 원본 ZIP을 직접 확인한 결과**입니다. ZIP의 `Datasets/` 디렉터리에 CSV 4개가 들어 있습니다.
+
+| 파일 | 행 수 | 주요 내용 |
+| --- | ---: | --- |
+| `Customer Data.csv` | 45,000 | 고객 ID, 나이·성별·멤버십, 카드 발급일·해지일, 한도·APR |
+| `Transaction Data.csv` | 446,425 | 고객·거래 ID, 거래일, 금액·건수, 구매·반품, 결제수단·상품 범주 코드 |
+| `Payment Code.csv` | 5 | 결제수단 코드와 이름 대응표 |
+| `Category Code.csv` | 10 | 상품 범주 코드와 이름 대응표 |
+
+- **거래 관측 기간:** 2024-08-01 ~ 2026-07-31, 총 24개월
+- **대상 카드:** `Payment_Code = 3`, 결제수단 표의 `ABC Bank Credit Card`
+- **거래 범위:** 공개 설명에 기재된 `XYZ Inc.` 제휴몰의 거래
+- **거래건수:** 한 행이 여러 건을 포함할 수 있으므로 행 수와 `Number_of_Transactions`의 합계를 구분합니다.
+- **고객·날짜 연결:** `Customer_ID`로 고객과 거래를 연결하고 `Transaction_Date`, `Credit_Card_Open_Date`, `Credit_Card_Closed_Date`로 기준일별 고객 상태와 이후 정답을 구성합니다.
+
+#### 다운로드 후 전처리 시작
+
+다운로드한 ZIP을 저장소 루트 기준 `data/raw/Synchrony/Datasets.zip`에 저장합니다. 압축을 미리 풀 필요 없이 [Synchrony 전처리 노트북](notebooks/Synchrony/01_data_load_clean.ipynb)에서 원본을 바로 읽습니다. 실행 방법은 [전처리 작업 안내](notebooks/Synchrony/README.md)를 참고합니다.
+
+- 원본 ZIP 크기: **7,067,993바이트**, 약 **7.07MB**
+- 원본 ZIP SHA-256: `bf66d162bbbf564e93c45623d5a3f89606acb18e6accf3bef157ef1652f4b5cf`
+- 파일 확인일: **2026-09-26**. 최초 다운로드 날짜를 의미하지 않습니다.
+- 향후 정제본 저장 위치: `data/processed/Synchrony/`
+
+원본 ZIP과 Synchrony 정제본 디렉터리는 현재 `.gitignore`로 제외해 로컬에서 관리합니다. 데이터 설명은 [데이터 README](data/README.md)에서도 확인할 수 있습니다.
+
+#### 현재 실험 구현과 평가 결과
+
+기준일까지의 거래로 이후 30일·60일 해지를 예측하는 분류를 실험했습니다. 다음 달 거래량을 예측하는 회귀와 고객 행동 군집 분석은 새 데이터에 맞춰 학습·평가를 이어갈 범위입니다.
 
 구현한 내용:
 
