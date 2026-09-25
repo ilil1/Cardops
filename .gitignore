@@ -93,6 +93,8 @@ dumps/
 *~
 
 # Generated artifacts
+/data/raw/Synchrony/
+/data/processed/Synchrony/
 outputs/*
 !outputs/README.md
 tmp/*

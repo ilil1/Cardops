@@ -9,7 +9,7 @@
 - 중복 행: 0
 - 실제 `NaN`: 0
 - SHA-256: `c91b525a2a6755a1b0b80dad1d0d008ca97ec4df34552c8f47ffa12b6184b779`
-- 원칙: 직접 수정하지 않고 `01_data_load_clean.ipynb`를 통해 정제본을 생성합니다.
+- 원칙: 직접 수정하지 않고 [BankChurners 전처리 노트북](../notebooks/BankChurners/01_data_load_clean.ipynb)을 통해 정제본을 생성합니다.
 
 ## `processed/bankchurners_clean.csv`
 
@@ -32,6 +32,13 @@
 
 정제본은 원본과 행 수 및 공통 열의 값·순서가 동일하며, 위 열 제거와 타깃 변환만 적용되어 있습니다.
 
-## 데이터 출처
+## `raw/Synchrony/Datasets.zip`
+
+- 역할: Synchrony 고객·거래·결제수단·상품 범주 원본 파일을 담은 ZIP
+- 사용 위치: [Synchrony 전처리 작업 공간](../notebooks/Synchrony/README.md)
+- 원본 ZIP과 향후 정제본을 저장할 `processed/Synchrony/`는 로컬에서 관리하며 Git에서 제외합니다.
+- 기존 BankChurners 원본·정제본 경로는 유지합니다.
+
+## BankChurners 데이터 출처
 
 https://www.kaggle.com/datasets/sakshigoyal7/credit-card-customers

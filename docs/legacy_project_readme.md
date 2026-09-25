@@ -26,7 +26,7 @@ SKN34-2nd-4Team/
 │   ├── README.md
 │   └── guides/
 │       └── git_upstream_push_pr_guide.pdf
-├── notebooks/
+├── notebooks/BankChurners/
 │   ├── 00_project_roadmap.ipynb
 │   ├── 01_data_load_clean.ipynb
 │   ├── 02_eda.ipynb
@@ -86,13 +86,13 @@ Git의 `upstream` 설정부터 커밋, 포크 저장소 푸시, Pull Request 생
 
 ## 실행 순서
 
-노트북은 `notebooks/` 디렉터리를 작업 디렉터리로 사용합니다.
+노트북은 `notebooks/BankChurners/` 디렉터리를 작업 디렉터리로 사용합니다.
 
 ```bash
 python -m venv project_venv
 source project_venv/bin/activate
 pip install -r requirements.txt
-cd notebooks
+cd notebooks/BankChurners
 jupyter lab
 ```
 

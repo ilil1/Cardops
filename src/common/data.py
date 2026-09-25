@@ -21,8 +21,8 @@ def get_categorical_columns(df: pd.DataFrame) -> list[str]:
 
     select_dtypes(include=["object", "category"])만 쓰면, 문자열 컬럼의 실제
     dtype이 "str"인 pandas 버전에서 Pandas4Warning이 발생한다
-    (notebooks/05_1clustering.ipynb에서 확인된 문제). "string"까지 포함해 세
-    표현 전부를 잡아내면 경고 없이 동작한다(notebooks/04_regression_final.ipynb 방식).
+    (notebooks/BankChurners/05_1clustering.ipynb에서 확인된 문제). "string"까지 포함해 세
+    표현 전부를 잡아내면 경고 없이 동작한다(notebooks/BankChurners/04_regression_final.ipynb 방식).
     """
     return df.select_dtypes(include=["object", "string", "category"]).columns.tolist()
 

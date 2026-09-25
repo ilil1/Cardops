@@ -257,7 +257,9 @@ CardOps/
 │   ├── final/                # BankChurners 최종 모델 학습
 │   └── experiments/synchrony/ # 시간순 해지 예측 실험
 ├── data/                     # 원본·정제·합성 데이터
-├── notebooks/                # EDA와 모델 실험 노트북
+├── notebooks/                # 데이터셋별 전처리·EDA·모델 실험
+│   ├── BankChurners/          # 기존 BankChurners 노트북
+│   └── Synchrony/             # Synchrony 전처리 시작 노트북
 ├── dashboard/                # 별도 Streamlit 모델 분석 화면
 ├── docs/                     # 설계·실행·검증 문서
 ├── outputs/                  # 모델·예측·평가 산출물
@@ -277,6 +279,7 @@ CardOps/
 | [구조 변경 검증](docs/backend_service_refactor.md) | 서비스 분리 검증 결과와 기존 테스트의 제한 |
 | [프론트엔드](frontend/README.md) | 화면 구성과 프론트엔드 개발 |
 | [데이터 전환 배경](docs/data_transition/README.md) | BankChurners의 한계와 새로운 데이터로 개선하는 이유 |
+| [분석 노트북](notebooks/README.md) | BankChurners·Synchrony 작업 공간과 실행 방법 |
 | [DB 스키마](docs/database_schema.md) | 고객·분석·캠페인·인증 데이터 구조 |
 | [고객 분석 배치](docs/phase2_analysis_batch.md) | 모델 실행과 분석 결과 저장 |
 | [고객 분석 조회 API](docs/customer_insights_api.md) | 목록·상세·이력 조회 |

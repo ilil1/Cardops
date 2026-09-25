@@ -1,11 +1,11 @@
 """군집용 피처셋 정의 — 서로 다른 질문에 답하는 4종을 유지한다.
 
-- behavioral_core(기본값): 5개 행동 변수. notebooks/05_clustering.ipynb → 기존
+- behavioral_core(기본값): 5개 행동 변수. notebooks/BankChurners/05_clustering.ipynb → 기존
   src/clustering.py 운영값. k=3, 참고 Silhouette ≈ 0.218.
-- behavioral_extended: 8개 행동 변수. notebooks/credit_card_retention_ml.ipynb §5.
+- behavioral_extended: 8개 행동 변수. notebooks/BankChurners/credit_card_retention_ml.ipynb §5.
   k=4, 참고 Silhouette = 0.1946. behavioral_core와 겹치는 피처가 4개뿐이라
   상위집합 관계가 아니다 — 둘 다 유지한다(docs/src_architecture.md 결정 A).
-- credit_capacity: 4개 신용여력 변수. notebooks/credit_card_retention_ml.ipynb §5-2.
+- credit_capacity: 4개 신용여력 변수. notebooks/BankChurners/credit_card_retention_ml.ipynb §5-2.
   k=2, 참고 Silhouette = 0.4687.
 - activity_gap: 회귀(gap) 모델의 예측 결과에 의존한다. 원본 CSV만으로는 계산할 수
   없다(docs/src_architecture.md 결정 B) — regression_final.py가 저장하는

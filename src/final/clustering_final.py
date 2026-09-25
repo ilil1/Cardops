@@ -1,16 +1,16 @@
 """최종 k(또는 n_components)로 군집 4종을 학습하고, 프로파일과 모델을 저장한다.
 
 - behavioral_core: KMeans k=3 (hyperparameter/clustering_search.py 검증값, Silhouette≈0.218)
-- behavioral_extended: KMeans k=4 (notebooks/credit_card_retention_ml.ipynb §5 참고값, Silhouette=0.1946)
+- behavioral_extended: KMeans k=4 (notebooks/BankChurners/credit_card_retention_ml.ipynb §5 참고값, Silhouette=0.1946)
 - credit_capacity: KMeans k=2 (hyperparameter/clustering_search.py 검증값, Silhouette≈0.469)
-- activity_gap: GMM(spherical) k=3 (notebooks/05_1/05_2clustering.ipynb 참고값 — Silhouette만
+- activity_gap: GMM(spherical) k=3 (notebooks/BankChurners/05_1/05_2clustering.ipynb 참고값 — Silhouette만
   보면 KMeans k=2가 더 높지만, "우선케어·일반관리·우량" 3단계 비즈니스 해석을 위해 GMM k=3을
   최종으로 쓴다) — regression_final.py가 저장한 outputs/reports/regression_gap_oof_predictions.csv가
   있어야 실행된다(docs/src_architecture.md 3절: regression_final → clustering_final 순서 강제).
 
   Test 예측(regression_gap_predictions.csv, 2,026명)이 아니라 5-fold out-of-fold
   예측(전체 10,127명)을 쓴다 — Test 예측만 쓰면 활동성 갭 군집이 고객의 20%에게만
-  적용되고, Train/Val 고객은 세그먼트를 받지 못한다(notebooks/05_1clustering.ipynb
+  적용되고, Train/Val 고객은 세그먼트를 받지 못한다(notebooks/BankChurners/05_1clustering.ipynb
   리뷰에서 지적된 문제). OOF 파일은 전체 고객을 커버하므로 여기서도 다른 3개
   변형처럼 Churn_Rate 프로파일링이 가능하다.
 
