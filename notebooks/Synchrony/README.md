@@ -2,6 +2,12 @@
 
 [`01_data_load_clean.ipynb`](01_data_load_clean.ipynb)에서 고객·거래 원본을 불러오고 날짜, 식별자, 결제수단, 결측치와 관측 기간을 확인합니다. 정제 규칙과 모델별 입력을 이어서 작성할 시작 노트북입니다.
 
+## 데이터 출처
+
+원본은 [chawanaryan19의 Synchrony Analytics Hackathon 2026 참가 프로젝트](https://github.com/chawanaryan19/Customer-and-Credit-Card-Analysis---Declining-Share-of-Wallet)에 공개된 `Datasets.zip`입니다.
+
+[데이터 README](../../data/README.md)에 다운로드 링크, 문제 설명서, CSV별 구성과 행 수, 거래 기간, 파일 크기와 SHA-256을 정리했습니다.
+
 ## 실행
 
 저장소 루트에서 Synchrony 분석용 Python 환경을 활성화한 뒤 실행합니다.

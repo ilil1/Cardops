@@ -119,7 +119,9 @@ flowchart LR
 
 ### Synchrony — 시간순 해지 예측 실험
 
-고객 45,000명과 2024-08-01부터 2026-07-31까지의 거래 기록을 사용합니다. 고객 ID로 거래·카드 발급일·해지일을 연결해 기준일별 입력과 이후 정답을 만듭니다. 거래 관측 범위는 해당 제휴몰입니다.
+데이터는 [chawanaryan19의 Synchrony Analytics Hackathon 2026 참가 프로젝트](https://github.com/chawanaryan19/Customer-and-Credit-Card-Analysis---Declining-Share-of-Wallet)에 공개된 `Datasets.zip`을 사용합니다. 출처·다운로드·파일 구성·해시는 [데이터 README](data/README.md)에 정리했습니다.
+
+고객 45,000명과 2024-08-01부터 2026-07-31까지의 거래 기록 446,425행을 사용합니다. 고객 ID로 거래·카드 발급일·해지일을 연결해 기준일별 입력과 이후 정답을 만듭니다. 거래 관측 범위는 해당 제휴몰입니다.
 
 구현한 내용:
 
@@ -280,6 +282,7 @@ CardOps/
 | [프론트엔드](frontend/README.md) | 화면 구성과 프론트엔드 개발 |
 | [데이터 전환 배경](docs/data_transition/README.md) | BankChurners의 한계와 새로운 데이터로 개선하는 이유 |
 | [분석 노트북](notebooks/README.md) | BankChurners·Synchrony 작업 공간과 실행 방법 |
+| [데이터 출처와 구성](data/README.md) | 원본 다운로드, CSV 구성·규모, 파일 해시와 저장 경로 |
 | [DB 스키마](docs/database_schema.md) | 고객·분석·캠페인·인증 데이터 구조 |
 | [고객 분석 배치](docs/phase2_analysis_batch.md) | 모델 실행과 분석 결과 저장 |
 | [고객 분석 조회 API](docs/customer_insights_api.md) | 목록·상세·이력 조회 |

@@ -8,6 +8,8 @@
 
 이번 실험 원본 SHA-256: `bf66d162bbbf564e93c45623d5a3f89606acb18e6accf3bef157ef1652f4b5cf`.
 
+다운로드 링크, CSV별 구성과 행 수, 로컬 저장 경로는 [데이터 README](../../../data/README.md)에 정리했습니다.
+
 ```bash
 python -m pip install -r src/experiments/synchrony/requirements.txt
 python -m src.experiments.synchrony.data --zip /path/to/Datasets.zip --output outputs/synchrony_data
