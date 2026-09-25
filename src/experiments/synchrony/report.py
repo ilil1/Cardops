@@ -1,0 +1,86 @@
+"""Create a reviewable Korean report from the completed comparison artifacts."""
+import argparse
+import json
+from pathlib import Path
+
+from .models import CORE
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--results', type=Path, required=True)
+    parser.add_argument('--output', type=Path, required=True)
+    args = parser.parse_args()
+    load = lambda p: json.loads((args.results / p).read_text())
+    r30 = load('classification_30/results.json')
+    r60 = load('classification_60_transfer/results.json')
+    u30 = load('classification_30/uncertainty.json')
+    u60 = load('classification_60_transfer/uncertainty.json')
+    selected = r30['selected']
+    lines = [
+        '# Synchrony 해지 분류 모델 개선 결과', '',
+        '작성일: 2026-09-25. 이 보고서는 기존 CardOps의 BankChurners 모델이 아니라, 별도로 실험 중인 Synchrony 후보 데이터 모델을 비교한다.', '',
+        '## 결론', '',
+        '이번 비교에서는 60일 해지 분류가 기존 실험 모델보다 세 평가 시점 모두 개선됐다. 30일 분류는 지표와 시점에 따라 개선과 하락이 섞여 있어 일관된 향상을 확보했다고 판단하지 않는다. 데이터의 달성 가능한 최고 성능을 입증한 실험은 아니다.', '',
+        'API 모델 교체와 화면 연결은 수행하지 않았다. 학습·비교·추론 코드, 저장된 모델, 고객별 점수 파일을 생성했다. 회귀와 군집은 이번 개선 실험 범위에 포함하지 않았다.', '',
+        '## 변경한 내용', '',
+        f'- 선택된 방법: `{selected}`. 핵심 특징 {len(CORE)}개를 사용하는 로지스틱 회귀, 입력 로그 변환·표준화·규제, 기준일 이전 6개월 범위에서 정답이 관측된 표본으로 학습한다.',
+        '- 최근 30·90·180일 거래량을 카드 관측 일수로 나눈 특징, 미구매 여부, 구매 감소율, 카드 보유 기간과 달력 변수를 사용한다.',
+        '- 단순히 알고리즘만 바꾼 비교는 아니다. 특징·전처리·학습 기간이 함께 바뀌었으므로 효과를 한 요소의 공로로 돌리지 않는다.',
+        '- 비교 후보에는 기존 로지스틱, 핵심 특징 로지스틱, 최근 자료 학습, 보유 기간 spline, 거래 특징 spline, CatBoost 깊이 4/6, HGB가 포함된다.', '',
+        '## 평가 규칙과 한계', '',
+        '- 2025-10-31, 2025-12-31, 2026-02-28 세 개발 시점의 평균 AP로 방법을 선택했다. 후보와 기준은 실행 전 protocol.json에 기록했다.',
+        '- 선택을 고정한 뒤 30일은 2026년 3~6월 네 기준일, 60일은 3~5월 세 기준일에서 비교했다. 60일은 30일 개발 구간에서 선택한 방법을 그대로 적용했다.',
+        '- 비교 기간은 앞선 실험에서도 확인한 적이 있다. **완전히 새로운 독립 테스트가 아닌 반복 시간순 검증**이다. 향후 새 기간이나 별도 데이터에서 재검증이 필요하다.',
+        '- 매 기준일에 전체 예측 기간의 정답이 관측된 과거 표본만 학습했다. 예를 들어 2월 말에 아직 30일이 지나지 않은 1월 말 정답은 학습에 사용하지 않는다.',
+        '- 고객 ID, 해지일, 미래 결과, 최종 고객 속성, 데이터의 종료일까지 남은 시간은 입력으로 쓰지 않는다. 기준일에 발급되어 아직 해지되지 않은 고객을 평가한다.',
+        '- 구매는 특정 제휴몰에서 관측된 구매다. 누락 없는 관측과 거래일의 정보 이용 가능성은 데이터 설명만으로 입증되지 않은 가정이다.',
+        '- 점수는 위험 순위를 위한 값이다. class_weight=balanced를 사용한 출력값을 실제 고객별 해지 확률로 표시하면 안 된다.', '',
+        '## 30일 비교', '',
+        '기준: 이전 확장 특징 210개에서 학습 중 40개를 선택하는 로지스틱 모델. 평균은 평가 시점별 지표의 단순 평균이다.', '',
+        '| 기준일 | AUC 기존 → 후보 | AP 기존 → 후보 | 상위 10% 포착률 기존 → 후보 | 포착 수 기존 → 후보 |',
+        '|---|---:|---:|---:|---:|',
+    ]
+    for a, b in zip(r30['confirmation']['reference_lr210']['folds'], r30['confirmation'][selected]['folds']):
+        lines.append(f'| {a["date"]} | {a["auc"]:.4f} → {b["auc"]:.4f} | {a["ap"]:.4f} → {b["ap"]:.4f} | {a["top10_recall"]:.1%} → {b["top10_recall"]:.1%} | {a["top10_caught"]} → {b["top10_caught"]} |')
+    lines += ['', '## 60일 비교', '',
+        '기준: 이전 60일 실험에서 선택된 HGB 모델. 각 행에서 두 방법이 확인할 고객 수는 같다.', '',
+        '| 기준일 | 확인 대상 수 | 실제 해지 수 | AUC 기존 → 후보 | AP 기존 → 후보 | 상위 10% 포착률 기존 → 후보 | 포착 수 기존 → 후보 |',
+        '|---|---:|---:|---:|---:|---:|---:|']
+    for a, b in zip(r60['comparison']['previous_hgb60']['folds'], r60['comparison'][selected]['folds']):
+        lines.append(f'| {a["date"]} | {a["top10_size"]:,} | {a["positive"]:,} | {a["auc"]:.4f} → {b["auc"]:.4f} | {a["ap"]:.4f} → {b["ap"]:.4f} | {a["top10_recall"]:.1%} → {b["top10_recall"]:.1%} | {a["top10_caught"]} → {b["top10_caught"]} |')
+    lines += ['', '60일의 여러 평가 시점에서는 동일 해지 사건이 반복될 수 있다. 행별 포착 수를 더한 값을 고유 해지 고객 수로 해석하면 안 된다.', '',
+        '## 평균과 불확실성', '',
+        '| 기간 | 지표 | 기존 | 후보 | 후보 − 기존의 95% 구간 |', '|---|---|---:|---:|---:|']
+    for horizon, old, new, uncertainty in [
+        (30, r30['confirmation']['reference_lr210'], r30['confirmation'][selected], u30),
+        (60, r60['comparison']['previous_hgb60'], r60['comparison'][selected], u60),
+    ]:
+        for key, title in [('auc', 'AUC'), ('ap', 'Average Precision'), ('top10_recall', '상위 10% 포착률')]:
+            lo, hi = uncertainty['mean_delta_95_interval'][key]
+            if key == 'top10_recall':
+                lines.append(f'| {horizon}일 | {title} | {old["mean_"+key]:.1%} | {new["mean_"+key]:.1%} | {lo*100:+.2f} ~ {hi*100:+.2f}%p |')
+            else:
+                lines.append(f'| {horizon}일 | {title} | {old["mean_"+key]:.5f} | {new["mean_"+key]:.5f} | {lo:+.5f} ~ {hi:+.5f} |')
+    lines += ['',
+        '같은 고객의 모든 시점 기록을 한 묶음으로 유지하고, 두 모델을 동일하게 재표집한 200회 부트스트랩이다. 이 구간은 관측한 평가월 내부의 고객 표본 불확실성만 반영하며, 미래 시기 변화와 반복 모델 개발의 영향을 포함하지 않는다.', '',
+        'AUC는 정확도가 아니다. AP는 점수 순위에 따라 실제 해지 고객이 얼마나 앞쪽에 모이는지를 요약하며 해지 비율의 영향을 받으므로 같은 기간끼리 비교했다.', '',
+        '## 검증과 재사용', '',
+        '- 새 데이터 가공 코드로 2025-10-31 고객 28,065명의 기존 특징 210개가 이전 실험 입력과 일치함을 확인했다.',
+        '- 미래 거래·해지 결과를 변경해도 과거 입력이 바뀌지 않는 테스트, 정답 관측 기간이 끝난 표본만 학습하는 테스트, 관측 부족을 미해지 0으로 채우지 않는 테스트가 통과했다.',
+        '- 저장한 모델을 다시 읽어 원래 예측과 일치하는지 확인했다. 추론 CLI로 실제 고객 우선순위 CSV도 생성했다.',
+        '- 원본 ZIP SHA-256: `bf66d162bbbf564e93c45623d5a3f89606acb18e6accf3bef157ef1652f4b5cf`.',
+        '- 실행 환경: Python 3.12, NumPy 2.3.5, pandas 2.2.3, scikit-learn 1.7.2, SciPy 1.16.2, CatBoost 1.2.8.',
+        '- 재실행 안내: [실험 README](../src/experiments/synchrony/README.md).',
+        '- 60일 후보 모델: `outputs/synchrony_tuning/classification_60_transfer/lr_core_recent6.joblib`.',
+        '- 실제 점수 파일: `outputs/synchrony_tuning/review_candidates_60d_2026-05-31.csv`.',
+        '- 상세 결과: `outputs/synchrony_tuning/classification_30/results.json`, `outputs/synchrony_tuning/classification_60_transfer/results.json`.', '',
+        '30일 후보는 기존 모델을 대체할 근거가 충분하지 않다. 60일 후보는 이번 비교에서 개선된 방법으로 보존하되, 서비스 적용 전 별도 기간 성능과 확률 보정, 운영 기준을 확인해야 한다.',
+    ]
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text('\n'.join(lines) + '\n')
+    print(args.output)
+
+
+if __name__ == '__main__':
+    main()

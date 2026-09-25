@@ -1,264 +1,272 @@
-<div align="center">
-  <img src="./docs/image/phoenix-team-banner.png" width="100%" alt="불사조 팀 배너" />
-</div>
+# CardOps
 
-<br />
+**신용카드 고객 분석 · 이탈 예측 · 캠페인 관리 개인 프로젝트**
 
-# 1. 팀 소개
+CardOps는 고객 데이터 적재부터 머신러닝 분석, 고객 조회, 캠페인 대상 선정, 담당자 배정과 처리 이력까지 연결하는 웹 애플리케이션입니다. React 화면과 NestJS API를 중심으로 구성하며, 모델 학습·추론과 분석 배치는 Python으로 실행합니다.
 
-## 📌 팀명
+현재 서비스는 BankChurners 기반 분류·회귀·군집 분석을 제공합니다. 날짜별 거래와 카드 해지일을 사용하는 Synchrony 데이터로 **향후 30일·60일 내 해지 예측을 검증하는 오프라인 실험**도 구현했습니다.
 
-<h1 align="center">🔥 SKN34-2nd-4Team : 불사조 🔥</h1>
+## 1. 현재 구현 범위
 
-<br />
+| 영역 | 구현 내용 | 현재 상태 |
+| --- | --- | --- |
+| 웹 서비스 | 인증·권한, 고객 분석 대시보드, 캠페인 관리, 일괄 타기팅 | NestJS API와 React 화면 연결 |
+| 서비스 모델 | BankChurners 분류·회귀·군집, 고객 분석 배치, 모델·분석 이력 저장 | 기존 API와 DB에 연결 |
+| 시간순 해지 예측 | Synchrony 고객별 기준일 데이터, 30일·60일 해지 분류, 특징공학, 모델 비교·검증 | 별도 오프라인 실험, 서비스 미연결 |
+| 실행·배포 | Docker Compose, 모델 생성 작업, DB 마이그레이션, Render 배포 설정 | 설정과 실행 스크립트 구현 |
 
-## 📌 팀 멤버
+BankChurners는 고객별 월별 반복 기록을 제공하지 않으므로, 현재 서비스의 분류 점수를 **미래 특정 기간의 해지 확률**로 해석할 수 없습니다. 미래 해지 예측의 검증 범위는 아래 Synchrony 실험에서 별도로 설명합니다.
 
-<table>
-  <thead>
-    <tr>
-      <th align="center">김건우</th>
-      <th align="center">이성민</th>
-      <th align="center">전진영</th>
-      <th align="center">최성욱</th>
-      <th align="center">황수빈</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td align="center"><img src="./docs/image/4.png" width="130" alt="김건우" /></td>
-      <td align="center"><img src="./docs/image/1.png" width="130" alt="이성민" /></td>
-      <td align="center"><img src="./docs/image/3.png" width="130" alt="전진영" /></td>
-      <td align="center"><img src="./docs/image/2.png" width="130" alt="최성욱" /></td>
-      <td align="center"><img src="./docs/image/5.png" width="130" alt="황수빈" /></td>
-    </tr>
-    <tr>
-      <td align="center"><a href="https://github.com/ilil1">@ilil1</a></td>
-      <td align="center"><a href="https://github.com/lsm15111">@lsm15111</a></td>
-      <td align="center"><a href="https://github.com/msi67811-jpg">@msi67811-jpg</a></td>
-      <td align="center"><a href="https://github.com/Overlay1010">@Overlay1010</a></td>
-      <td align="center"><a href="https://github.com/subinss838">@subinss838</a></td>
-    </tr>
-    <tr>
-      <td align="center">팀원1</td>
-      <td align="center"><strong>팀장</strong></td>
-      <td align="center">팀원2</td>
-      <td align="center"><strong>팀장</strong></td>
-      <td align="center">팀원3</td>
-    </tr>
-  </tbody>
-</table>
+## 2. 주요 기능
 
-<br />
+### 인증과 계정 관리
 
-# 2. 프로젝트 개요
+- 아이디·비밀번호 회원가입과 로그인, 관리자 가입 승인 및 계정 관리
+- Argon2 비밀번호 해시, HttpOnly JWT 쿠키, 세션 복원과 로그아웃
+- 관리자·분석·운영·마케팅 역할에 따른 API 및 화면 접근 제어
+- 얼굴 검출·임베딩을 사용하는 얼굴 회원가입·로그인
+- 로그인 시도 제한과 인증 이벤트 기록
 
-## 📌 프로젝트 명
+### 고객 분석
 
-### CardOps - 신용카드 고객 이탈 조기경보 및 고객 관리 서비스
+- 고객 목록·상세 조회, 고객 ID·위험도·군집 필터, 정렬과 페이지네이션
+- 분류 점수, 위험 구간, 예상 거래건수, 활동성 갭, 고객 군집 표시
+- 고객별 분석 이력과 최신 모델 실행·배치 상태 조회
+- 고객 특성 분포, 상관관계, 군집 프로파일 등 분석 차트
+- 필터 결과 CSV 내보내기와 캠페인 후보 조회
 
-## 📌 프로젝트 소개
+### 캠페인 업무
 
-CardOps는 신용카드 고객 데이터를 바탕으로 고객의 이탈 가능성을 예측하고, 예상 거래활동과 실제 거래활동의 차이를 분석해 위험 고객을 조기에 발견하는 머신러닝 기반 고객 관리 서비스입니다.
+- 캠페인 생성·조회·수정과 생애주기 상태 관리
+- 대상 등록, 담당자 배정, 접촉·완료·취소 및 처리 결과 기록
+- 세그먼트별 일괄 타기팅의 미리보기·실행·취소·재실행
+- 수신 거부, 최근 접촉, 활성 캠페인 중복에 따른 대상 제외
+- 대상 변경 이벤트, 처리 큐와 SLA 현황 조회
+- A/B 그룹 배정, 결과 입력, 전환·유지·비용 집계 화면
 
-분류·회귀·군집 모델의 결과를 결합하여 고객별 이탈 위험도와 활동성 상태, 고객 유형을 제공하며, 분석 결과를 대시보드와 캠페인 업무에 연결해 부서별 의사결정을 지원합니다.
+캠페인 성과 계산과 합성 시연 데이터는 업무 흐름을 확인하는 기능입니다. 화면의 ROI·증분효과 수치만으로 실제 이탈 방지 효과나 매출 기여가 검증되었다고 판단하지 않습니다.
 
-## 📌 프로젝트 필요성(배경)
+### 역할별 사용 흐름
 
-- 신규 고객을 확보하는 것만큼 기존 고객의 이탈을 예방하고 관계를 유지하는 것이 중요합니다.
-- 단순 이탈 여부만 예측하면 고객의 활동이 언제부터 감소했는지 파악하기 어렵습니다.
-- 고객마다 연령, 신용한도, 거래 규모와 이용 패턴이 다르므로 동일한 기준으로 관리하기 어렵습니다.
-- 이탈 확률, 예상 대비 거래활동, 고객군 특성을 함께 분석하면 위험 고객을 더 구체적으로 구분하고 적절한 대응 전략을 수립할 수 있습니다.
+| 역할 | 주요 작업 |
+| --- | --- |
+| 관리자 (`admin`) | 계정 승인·관리, 고객 조회, 캠페인 관리와 대상 처리 |
+| 분석 (`analyst`) | 고객 특성·분석 결과·모델 이력 및 캠페인 조회 |
+| 마케팅 (`marketing`) | 캠페인 기획, 대상 등록, 일괄 타기팅 |
+| 운영 (`operations`) | 배정된 대상의 접촉·처리와 결과 입력 |
 
-## 📌 프로젝트 목표
+```text
+로그인 → 고객 특성·분석 결과 확인 → 캠페인 후보 검토
+       → 캠페인 생성·담당자 배정 → 처리 결과 입력 → 이력 확인
+```
 
-1. 비즈니스 문제를 이해하고 고객 이탈 방지를 위한 머신러닝 모델 활용 계획을 수립합니다.
-2. 모델 학습에 필요한 데이터 정제, 탐색적 데이터 분석(EDA), 전처리 및 특징공학을 수행합니다.
-3. 분류 모델로 고객별 이탈 여부와 이탈 확률을 예측합니다.
-4. 회귀 모델로 고객별 예상 거래건수를 계산하고 실제 거래건수와의 차이인 활동성 갭을 산출합니다.
-5. 군집 모델로 행동과 신용여력, 활동성 갭이 유사한 고객을 세분화합니다.
-6. 기본 모델, 특징공학 모델, 하이퍼파라미터 탐색 결과를 비교해 과제별 최종 모델을 선정합니다.
-7. React, NestJS, TiDB Cloud를 연동해 고객 분석 결과를 조회하고 활용할 수 있는 서비스를 구현합니다.
-8. GitHub와 Render를 이용해 프론트엔드와 백엔드를 배포하고, Docker Compose로 재현 가능한 로컬 개발 환경을 구성합니다.
-
-## 📌 데이터 소개
-
-### 1) 데이터 출처
-
-- 파일: `data/raw/BankChurners.csv`
-- 출처: [Kaggle Credit Card Customers Dataset](https://www.kaggle.com/datasets/sakshigoyal7/credit-card-customers)
-- 크기: 10,127명 × 23개 컬럼
-- 중복 행: 0개
-- 결측값: 0개
-
-### 2) 전처리 데이터
-
-전처리 결과는 `data/processed/bankchurners_clean.csv`로 저장합니다.
-
-- `CLIENTNUM`: 단순 고객 식별자이므로 제거
-- Naive Bayes 결과 컬럼 2개: 기존 모델의 결과값이므로 제거
-- `Attrition_Flag`: 고객 이탈 여부를 숫자형 `Target`으로 변환
-  - `Existing Customer` → `0`
-  - `Attrited Customer` → `1`
-- `Unknown` 범주: 별도 결측값으로 처리하지 않고 하나의 범주로 유지
-
-전처리 데이터는 10,127행 × 20개 컬럼이며, `Target`을 제외한 19개 고객 특성을 모델 입력값으로 사용합니다.
-
-<br />
-
-# 3. 기술 스택
-
-<table>
-  <tr>
-    <th>Frontend</th>
-    <td><img src="https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black"/> <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white"/> <img src="https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white"/> <img src="https://img.shields.io/badge/Node.js-5FA04E?style=flat-square&logo=nodedotjs&logoColor=white"/></td>
-  </tr>
-  <tr>
-    <th>Backend &amp; DB</th>
-    <td><img src="https://img.shields.io/badge/NestJS-E0234E?style=flat-square&logo=nestjs&logoColor=white"/> <img src="https://img.shields.io/badge/Python-3670A0?style=flat-square&logo=python&logoColor=ffdd54"/> <img src="https://img.shields.io/badge/SQLAlchemy-D71F00?style=flat-square&logo=sqlalchemy&logoColor=white"/> <img src="https://img.shields.io/badge/MySQL_8.4-4479A1?style=flat-square&logo=mysql&logoColor=white"/> <img src="https://img.shields.io/badge/TiDB_Cloud-ED1C24?style=flat-square&logo=tidb&logoColor=white"/></td>
-  </tr>
-  <tr>
-    <th>Data &amp; ML</th>
-    <td><img src="https://img.shields.io/badge/NumPy-013243?style=flat-square&logo=numpy&logoColor=white"/> <img src="https://img.shields.io/badge/Pandas-150458?style=flat-square&logo=pandas&logoColor=white"/> <img src="https://img.shields.io/badge/scikit--learn-F7931E?style=flat-square&logo=scikitlearn&logoColor=white"/></td>
-  </tr>
-  <tr>
-    <th>Infra &amp; 협업</th>
-    <td><img src="https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white"/> <img src="https://img.shields.io/badge/Render-000000?style=flat-square&logo=render&logoColor=white"/> <img src="https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white"/> <img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white"/></td>
-  </tr>
-</table>
-
-<br />
-
-# 4. 시스템 아키텍처
+## 3. 시스템 구조
 
 ```mermaid
 flowchart LR
-    Browser[React 프론트엔드] -->|REST API| Nest[NestJS 백엔드]
-    Nest -->|인증·조회·캠페인 데이터| DB[(MySQL / TiDB Cloud)]
-    Nest -->|프로세스 간 JSON 메시지| Worker[Python 추론 프로세스]
-    Worker --> Models[(joblib / ONNX 모델)]
-    Batch[Python 고객 분석 배치] --> DB
-    Batch --> Models
-    Alembic[Alembic 마이그레이션] --> DB
+    Web[React 웹 화면] -->|REST API · 인증 쿠키| API[NestJS API]
+    API -->|인증 · 조회 · 캠페인| DB[(MySQL / TiDB)]
+    API -->|JSON Lines| Worker[Python 추론 프로세스]
+    Worker --> Models[분류 모델 · 얼굴 ONNX 모델]
+    Batch[Python 고객 분석 배치] --> Analysis[분류 · 회귀 · 군집 모델]
+    Batch --> DB
+    Migration[Alembic 마이그레이션] --> DB
+    Builder[모델 생성 작업] --> Models
+    Builder --> Analysis
 ```
 
-## 📌 운영 서비스 흐름
+- **NestJS**: HTTP API, 인증·권한, 고객 분석 조회, 캠페인 업무 로직을 담당합니다.
+- **Python 추론 프로세스**: NestJS와 같은 컨테이너에서 모델을 적재하고 표준 입출력으로 요청을 처리합니다. 별도의 HTTP 서버를 띄우지 않습니다.
+- **Python 배치**: 고객 데이터를 적재하고 분류·회귀·군집 결과, 고객 특성 스냅샷, 모델 실행 및 스코어링 배치 이력을 저장합니다.
+- **DB**: NestJS는 `mysql2`, Python은 SQLAlchemy를 사용하며, 스키마 변경은 Alembic으로 관리합니다.
+- **Synchrony 실험**: `src/experiments/synchrony/`에서 독립 실행하며, 결과를 기존 서비스 DB나 API에 자동 반영하지 않습니다.
 
-1. 사용자는 웹 브라우저를 통해 Render의 **Static Site**로 배포된 React 프론트엔드에 접속합니다.
-2. React 프론트엔드는 Render의 **Web Service**로 실행되는 NestJS 백엔드에 REST API 요청을 보냅니다.
-3. NestJS는 인증·권한 관리, 고객 분석 조회와 캠페인 업무를 처리하고 MySQL 호환 DB에 연결합니다.
-4. 분류·얼굴 추론은 HTTP 포트를 열지 않는 Python 모델 프로세스가 처리하며, 전체 고객 분석 배치와 Alembic 마이그레이션도 Python으로 실행합니다.
+이전 FastAPI HTTP 코드는 `backend/app/main.py`와 `backend/app/api/`에 남아 있습니다. 현재 Compose와 Render 설정의 API 실행 진입점은 `backend/nest/`입니다.
 
-## 📌 배포 흐름
+### 기술 스택
 
-- 개발자가 코드를 GitHub `main` 브랜치에 반영하면 Render가 변경된 코드를 가져와 자동으로 빌드하고 배포합니다.
-- 프론트엔드는 React 정적 사이트, 백엔드는 NestJS Docker 웹 서비스로 각각 분리해 배포합니다.
-- 애플리케이션은 Render에서 실행하고 운영 데이터베이스는 MySQL 호환 클라우드 데이터베이스인 TiDB Cloud에서 관리합니다.
-- 현재 프로젝트는 Nginx를 별도로 구성하지 않으며, 정적 사이트 제공과 외부 HTTPS 연결은 Render가 담당합니다.
+| 영역 | 기술 |
+| --- | --- |
+| Frontend | React 19, TypeScript, Vite, Recharts |
+| Backend | NestJS 11, Node.js 24, mysql2 |
+| Python 실행 환경 | Python 3.13, SQLAlchemy, Alembic |
+| 데이터·모델 | pandas, NumPy, scikit-learn, LightGBM, XGBoost, CatBoost, joblib, ONNX |
+| 데이터베이스 | MySQL 8.4, TiDB Cloud 연결 설정 |
+| 테스트 | Vitest, Testing Library, Python unittest·pytest |
+| 실행·배포 | Docker Compose, Render Docker Web Service·Static Site |
 
-## 📌 로컬 개발 및 머신러닝 흐름
+## 4. 데이터와 모델
 
-- Docker Compose로 React, NestJS, MySQL 8.4, Model Builder를 함께 실행합니다.
-- Model Builder는 분류·회귀·군집 모델을 학습하고 검증한 뒤 Python 추론 프로세스가 사용할 `joblib`, `ONNX`, manifest 형식의 모델 아티팩트를 생성합니다.
-- NestJS가 Python 추론 프로세스의 예측 결과와 데이터베이스의 고객 분석 결과를 API로 제공합니다.
-- 로컬 MySQL과 운영 TiDB Cloud는 서로 분리되어 있으며, `DATABASE_URL` 설정에 따라 백엔드가 사용할 데이터베이스가 결정됩니다.
+### BankChurners — 현재 서비스 연결
 
-<br />
+원본은 `data/raw/BankChurners.csv`이며 10,127명의 고객 정보를 포함합니다. 정제본은 `data/processed/bankchurners_clean.csv`입니다. 정제 규칙은 [데이터 설명](data/README.md)에 정리되어 있습니다.
 
-# 5. ERD
+| 모델 | 구현 | 결과의 의미 |
+| --- | --- | --- |
+| 분류 | LightGBM 최종 모델과 manifest 기반 추론 | 데이터에 기록된 이탈·비이탈 상태의 분류 점수 |
+| 회귀 | VotingRegressor 기반 예상 거래건수와 활동성 갭 | 같은 관측 기간의 예상 거래건수와 실제 거래건수 차이 |
+| 군집 | K-means·GMM 학습, 활동성 갭 군집의 분석 배치 연결 | 입력 특성이 유사한 고객 그룹 |
 
-## 📌 고객 데이터 및 AI 분석
+학습 코드는 [`src/final/`](src/final/)에 있고, 생성 모델은 `outputs/models/`에 저장합니다. 분류 모델의 입력 스키마·파일 정보·판정 임계값은 manifest로 관리합니다.
 
-<div align="center">
-  <img src="./docs/image/cardops-erd-original-2.png" width="100%" alt="고객 데이터 및 AI 분석 ERD" />
-</div>
+활동성 갭은 다음 달 거래 감소를 관측한 값이 아니며, 군집 이름은 실제 고객 가치나 개입 효과를 검증한 등급이 아닙니다.
 
-고객 원본 데이터를 분석 시점별 특성 스냅샷으로 보존하고, 판정 정책과 분류·회귀·군집 모델의 실행 이력을 하나의 스코어링 배치로 관리합니다. 최종 분석 결과는 `customer_insights`에 저장하여 고객별 이탈 위험도, 예상 거래건수, 활동성 갭, 고객 군집과 권장 행동을 조회할 수 있습니다.
+### Synchrony — 시간순 해지 예측 실험
 
-<br />
+고객 45,000명과 2024-08-01부터 2026-07-31까지의 거래 기록을 사용합니다. 고객 ID로 거래·카드 발급일·해지일을 연결해 기준일별 입력과 이후 정답을 만듭니다. 거래 관측 범위는 해당 제휴몰입니다.
 
-## 📌 캠페인 및 대량 타기팅
+구현한 내용:
 
-<div align="center">
-  <img src="./docs/image/cardops-erd-original-3.png" width="100%" alt="캠페인 및 대량 타기팅 ERD" />
-</div>
+1. 기준일까지 발급되고 아직 해지하지 않은 고객의 월말 스냅샷 생성
+2. 기준일까지의 거래만 사용한 최근성·빈도·금액·이용 변화 특징 계산
+3. 이후 30일·60일 내 기록된 카드 해지를 정답으로 생성하고, 관측 기간이 부족한 정답 제외
+4. 보유기간 위험, 시기별 변화, 결제수단 이동 특징과 로지스틱 회귀·CatBoost·순위 결합 비교
+5. 과거 개발 기간에서 후보 선택 후 모델을 저장·동결하여 이후 기간 평가
+6. 고객 단위 bootstrap, 중복을 제외한 해지 고객 수, 최소 14일 전 포착 여부 계산
+7. 실험 규칙·입력과 코드 해시·선택 결과·모델·고객별 예측 저장
 
-고객 인사이트를 기반으로 타기팅 후보를 생성하고, 실행 결과를 실제 캠페인 대상과 연결합니다. 캠페인의 생성, 담당자 배정, 접촉, 완료, 전환과 유지 성과는 대상 및 이벤트 테이블에 누적하여 전체 캠페인 처리 이력을 추적할 수 있습니다.
+최신 비교는 기존 모델 2개와 신규 후보 6개를 대상으로 했습니다. 아래 값은 **매달 위험 점수 상위 10%를 확인할 때 실제 해지 고객을 찾은 비율의 월평균**입니다.
 
-<br />
+| 예측 대상 | 기존 실험 모델 | 신규 결합 후보 | 보유기간 중심 비교 모델 |
+| --- | ---: | ---: | ---: |
+| 30일 내 해지 | 34.76% | 35.27% | 35.50% |
+| 60일 내 해지 | 31.55% | 32.74% | 32.92% |
 
-## 📌 사용자 인증 및 감사
+- 개발 기준일: 2025년 7~12월 말. 각 학습 시점에 정답 관측이 끝난 과거 표본만 사용합니다.
+- 모델 동결일: **2026-03-30**. 이후 평가 중에는 재학습하지 않습니다.
+- 평가 기준일: 30일 모델은 2026년 3~6월 말, 60일 모델은 3~5월 말입니다.
+- 같은 고객의 과거·미래 등장은 허용하며, 동일 고객·동일 기준일의 학습·평가 중복은 금지합니다.
+- 해당 평가 기간은 이전 실험에도 사용했습니다. **처음 보는 독립 테스트 성능이 아닌, 재사용한 기간의 시간순 재검증 결과**입니다.
+- 신규 후보는 사전에 정한 개발 개선 기준을 통과하지 못했습니다. 실험 결과는 기존 서비스 모델에 배포하지 않았습니다.
 
-<div align="center">
-  <img src="./docs/image/cardops-erd-original-4.png" width="100%" alt="사용자 인증 및 감사 ERD" />
-</div>
+이 실험에서 회귀·군집의 서비스 전환, 자동 재학습·모델 승격·롤백까지 구현한 것은 아닙니다. 현재 확보한 구현 범위는 날짜별 입력 구성, 시간순 모델 비교와 재현 가능한 검증입니다. 원본 데이터의 실제·합성 여부와 재사용 라이선스는 별도 확인이 필요하며 원본 ZIP은 저장소에 포함하지 않습니다.
 
-`users`는 운영 계정과 역할을 관리하고, `user_face_credentials`는 사용자별 얼굴 임베딩을 1:0..1 관계로 저장합니다. `auth_events`에는 로그인 결과와 관리자 행위자를 함께 기록하여 인증 및 계정 관리 이력을 감사할 수 있습니다. 얼굴 인증 ORM은 `backend/app/face/models.py`에 별도로 정의되어 있으며 공통 SQLAlchemy `Base`에 정상 등록됩니다.
+[실험 실행 방법](src/experiments/synchrony/README.md) · [개선 계획](docs/synchrony_improvement_plan.md) · [상세 결과와 신뢰구간](docs/synchrony_advanced_evaluation.md) · [학습·평가 분리 점검](docs/synchrony_split_audit.md)
 
-<br />
+## 5. 로컬 실행
 
-# 6. 폴더구조
+Docker Desktop 또는 Docker Engine과 Compose를 준비하고, 저장소 루트에서 실행합니다.
+
+### 환경 설정
+
+```bash
+cp .env.example .env
+```
+
+`.env`에서 다음 값을 설정합니다.
+
+| 변수 | 용도 |
+| --- | --- |
+| `MYSQL_ROOT_PASSWORD` | 로컬 MySQL 관리자 비밀번호 |
+| `MYSQL_PASSWORD` | 애플리케이션 DB 계정 비밀번호 |
+| `JWT_SECRET` | 인증 쿠키 서명용 32자 이상의 임의 문자열 |
+| `MYSQL_PORT` | 호스트 MySQL 포트, 예제 파일은 `3307` |
+
+로컬 시연 계정이 필요하면 `ALLOW_TEST_USER_SEEDING=true`로 설정하고 `TEST_ADMIN_PASSWORD`, `TEST_ANALYST_PASSWORD`, `TEST_OPERATIONS_PASSWORD`, `TEST_MARKETING_PASSWORD`에 각각 12자 이상의 로컬 비밀번호를 지정합니다. 예제 환경 파일에서는 시드가 비활성화되어 있습니다. `.env`는 Git에 포함하지 않습니다.
+
+### 서비스 시작과 고객 분석
+
+```bash
+docker compose up -d --build
+docker compose ps -a
+```
+
+처음 실행하면 `model-builder`가 얼굴 모델을 준비하고 분류·회귀·군집 모델을 생성합니다. 이 작업이 `Exited (0)`으로 끝나고 MySQL이 준비되면 백엔드가 마이그레이션과 설정된 계정 시드를 실행합니다.
+
+백엔드 시작 후 고객 데이터와 분석 결과를 적재합니다.
+
+```bash
+docker compose exec backend python -m backend.scripts.import_customers
+docker compose exec backend python -m backend.scripts.run_analysis_batch
+```
+
+| 접속 대상 | 주소 |
+| --- | --- |
+| 웹 화면 | <http://localhost:5173> |
+| API 문서 | <http://localhost:8000/docs> |
+| OpenAPI | <http://localhost:8000/openapi.json> |
+| 생존·준비 상태 | <http://localhost:8000/live> · <http://localhost:8000/ready> |
+
+시드를 활성화한 경우 `test_admin`, `test_analyst`, `test_operations`, `test_marketing`으로 역할별 화면을 확인할 수 있습니다. 비밀번호는 각 환경변수에 지정한 값입니다.
+
+실행 순서·로그·모델 재생성은 [Docker Compose 실행 가이드](docs/docker_compose_runbook.md)를 참고합니다. 호스트에서 NestJS를 직접 실행하는 방법은 [백엔드 문서](backend/README.md)에 있습니다.
+
+## 6. 검증 명령
+
+호스트에서 개발·검증할 때는 Node.js 24, pnpm 11, Python 환경을 준비합니다. 아래는 저장소 루트에서 실행하는 명령입니다.
+
+```bash
+# NestJS
+npm --prefix backend/nest ci
+npm --prefix backend/nest run typecheck
+npm --prefix backend/nest test
+npm --prefix backend/nest run build
+
+# React
+pnpm --dir frontend install --frozen-lockfile
+pnpm --dir frontend typecheck
+pnpm --dir frontend test
+pnpm --dir frontend build
+
+# Synchrony 오프라인 실험 전용 Python 환경에서 실행
+python -m pip install -r src/experiments/synchrony/requirements.txt
+python -m unittest discover -s src/experiments/synchrony -t . -p 'test_*.py'
+```
+
+Synchrony 추가 개선 작업에서는 미래 정보 변경 불변성, 학습·평가 분리, 위험 일수 계산, 순위·bootstrap, 후보 선택 규칙에 관한 **테스트 34개**가 통과했습니다. 원본·입력·코드·저장 모델의 일관성은 별도 **68개 검사**로 확인했으며, 기록은 [실험 보고서](docs/synchrony_advanced_evaluation.md)에 있습니다. 이 수치는 전체 서비스의 통합 테스트 결과를 뜻하지 않습니다.
+
+NestJS 테스트는 현재 API의 업무 규칙을 검증합니다. `backend/tests/`에는 이전 Python API 테스트도 남아 있으며, 두 구현의 전체 DB 응답 동등성을 보장하는 통합 검증은 별도 범위입니다.
+
+## 7. 배포 구성
+
+[`render.yaml`](render.yaml)에 두 서비스를 정의합니다.
+
+- **Frontend**: React 빌드 결과를 Render Static Site로 제공
+- **Backend**: NestJS와 Python 런타임을 포함한 Docker Web Service, `/ready` 상태 확인
+- **DB**: `DATABASE_URL`로 MySQL 호환 DB 연결, TiDB Cloud 환경 설정 지원
+- **환경 설정**: `JWT_SECRET`, `CORS_ORIGINS`, `AUTH_COOKIE_SECURE`, `VITE_API_BASE_URL` 등
+
+현재 저장소에는 GitHub Actions workflow가 없습니다. Render의 Git 저장소 연동으로 배포하는 구성이며, 자동 배포 활성화와 대상 브랜치는 Render 서비스 설정에서 관리합니다. 모델을 이미지 빌드 과정에서 생성하는 작업과 데이터 유입에 따른 자동 재학습·승격은 구분합니다.
+
+배포 설정은 [Render 배포 가이드](docs/free_render_deploy.md), 컨테이너 실행 정의는 [`compose.yaml`](compose.yaml)을 참고합니다.
+
+## 8. 디렉터리 구조
 
 ```text
 CardOps/
-├── backend/       # NestJS API, Python 모델 프로세스, DB 마이그레이션·배치
-├── frontend/      # React·TypeScript 프론트엔드
-├── src/           # 머신러닝 학습, 모델 코드
-├── data/          # 원천·정제·합성 데이터
-├── notebooks/     # EDA 및 모델 실험 노트북
-├── dashboard/     # 데이터 분석 및 시각화 대시보드
-├── docs/          # 아키텍처, ERD, 발표 자료 및 프로젝트 문서
-├── outputs/       # 학습된 모델 아티팩트 및 분석 결과
-├── compose.yaml   # 로컬 Docker Compose 실행 설정
-├── render.yaml    # Render 배포 설정
-└── README.md      # 프로젝트 안내 문서
+├── backend/
+│   ├── nest/                 # 현재 NestJS API
+│   ├── inference_worker.py   # Python 모델 추론 프로세스
+│   ├── app/                  # Python 모델·ORM·배치 및 이전 HTTP 코드
+│   ├── migrations/           # Alembic 마이그레이션
+│   └── scripts/              # 고객 적재·분석·시연 데이터 CLI
+├── frontend/                 # React 화면·API 클라이언트·테스트
+├── src/
+│   ├── final/                # BankChurners 최종 모델 학습
+│   └── experiments/synchrony/ # 시간순 해지 예측 실험
+├── data/                     # 원본·정제·합성 데이터
+├── notebooks/                # EDA와 모델 실험 노트북
+├── dashboard/                # 별도 Streamlit 모델 분석 화면
+├── docs/                     # 설계·실행·검증 문서
+├── outputs/                  # 모델·예측·평가 산출물
+├── compose.yaml              # 로컬 컨테이너 구성
+└── render.yaml               # 배포 서비스 정의
 ```
 
-각 폴더는 서비스 운영에 필요한 핵심 영역을 기준으로 구성되어 있습니다. 로컬 캐시, 가상환경, 임시 파일과 같은 개발 환경 전용 항목은 구조에서 제외했습니다.
+생성 모델과 대용량 실험 산출물은 기본적으로 Git에서 제외합니다. 실행에 필요한 설정과 재현 코드는 저장소에서 관리합니다.
 
-<br />
+## 9. 상세 문서
 
-# 7. 수행결과
-
-- [분류 수행결과 PPT 자료](./docs/ppt/분류.pptx)
-- [회귀·군집 수행결과 PPT 자료](<./docs/ppt/회귀, 군집.pptx>)
-- [비즈니스 로직 발표 PPT 자료](<./docs/ppt/비즈니스 로직.pptx>)
-- [시스템 아키텍처 발표 PPT 자료](<./docs/ppt/시스템 아키텍처.pptx>)
-
-- [분류 수행결과 PDF 자료](./docs/pdf/분류.pdf)
-- [회귀·군집 수행결과 PDF 자료](<./docs/pdf/회귀, 군집 발표.pdf>)
-- [비즈니스 로직 발표 PDF 자료](<./docs/pdf/비즈니스 로직.pdf>)
-- [시스템 아키텍처 발표 PDF 자료](<./docs/pdf/시스템 아키텍처.pdf>)
-
-<br />
-
-# 8. 한줄 회고
-
-## 김건우
-
-> 다들 프로젝트에 적극적으로 참여해서 즐기면서 잘 진행할 수 있었습니다. 2차 프로젝트 수고 많으셨습니다.
-
-## 이성민
-
-> 머신러닝 모델을 비즈니스에 적용하는 과정과 서비스 운영 흐름을 개발 관점에서 이해하며 많은 것을 배울 수 있었습니다. 무엇보다 팀원 모두가 적극적으로 협업하고 함께 성장하려는 분위기가 형성되어, 프로젝트를 더욱 의미 있게 진행할 수 있어서 좋았습니다.
-
-## 전진영
-
-### 팀원들과 함께하며 배운 점과 성장
-
-프로젝트 초반의 막막함 속에서도 귀찮은 내색 없이 질문을 받아주고 팁을 건네준 팀원들 덕분에 큰 성장을 이룰 수 있었습니다.
-
-- 최성욱님: 작성물에 대한 피드백을 통해 문제를 깊이 있게 파고드는 집요함과 검토 습관을 배웠습니다.
-- 황수빈님: 밝은 에너지로 분위기를 이끌며, 주제 선정 시 새로운 시각을 제시하고 작업 흐름과 요약을 정리하는 높은 참여도를 배웠습니다.
-- 김건우님: 팀 전체의 흐름이 흔들릴 때 정확한 방향을 제시하여 나아갈 수 있도록 이끌어 주셨습니다.
-- 이성민님: 전담 케어를 통해 개인 성장을 돕는 동시에 팀 전체의 코드 오류와 작업 밸런스를 바로잡아주며 가장 고생하셨습니다.
-
-이번 프로젝트를 통해 개발자로서 팀 프로젝트에 임하는 태도를 배웠으며, “못하겠어요”가 아닌 “한번 해보겠습니다”라고 말할 수 있는 도전 의식과 자신감을 얻었습니다.
-
-## 최성욱
-
-> 각자 다른 시선으로 분류, 군집, 회귀, 세그먼트 설계, 시각화를 들고 모여 하나의 캠페인 전략으로 완성해가는 과정이 정말 흥미로웠습니다. 혼자였다면 놓쳤을 관점들이 서로 부딪히고 채워지면서 결과물이 훨씬 탄탄해지는 것을 느꼈고, 협업의 힘을 다시 한번 실감한 프로젝트였습니다. 다들 너무 성실하고 열심히 잘해주셔서 정말 감사합니다! 👍
-
-## 황수빈
-
-> 대시보드 삽질은 내가, 부활은 팀원들이. 샤라웃 투 불사조 팀원들…… 감사했습니다.
+| 문서 | 내용 |
+| --- | --- |
+| [백엔드](backend/README.md) | NestJS·Python 연결과 API 실행 |
+| [프론트엔드](frontend/README.md) | 화면 구성과 프론트엔드 개발 |
+| [DB 스키마](docs/database_schema.md) | 고객·분석·캠페인·인증 데이터 구조 |
+| [고객 분석 배치](docs/phase2_analysis_batch.md) | 모델 실행과 분석 결과 저장 |
+| [고객 분석 조회 API](docs/customer_insights_api.md) | 목록·상세·이력 조회 |
+| [캠페인 업무 흐름](docs/campaign_workflow.md) | 상태 전이와 역할별 권한 |
+| [일괄 타기팅](docs/bulk_targeting.md) | 후보 고정·제외 규칙·실행 이력 |
+| [캠페인 성과 집계](docs/campaign_performance.md) | 그룹 배정·결과 입력·집계 명세 |
+| [시연 데이터](docs/demo_data.md) | 합성 고객과 캠페인 데이터 생성 |
+| [Synchrony 실험](src/experiments/synchrony/README.md) | 실험 코드와 재실행 방법 |
+| [Synchrony 개선 결과](docs/synchrony_advanced_evaluation.md) | 후보 비교·신뢰구간·검증 한계 |

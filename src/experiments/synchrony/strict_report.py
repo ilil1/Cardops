@@ -1,0 +1,80 @@
+"""Summarize the frozen experiment without selecting a new winner on test scores."""
+import argparse
+import json
+from pathlib import Path
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--results', type=Path, required=True)
+    parser.add_argument('--output', type=Path, required=True)
+    args = parser.parse_args()
+    results = {h: json.loads((args.results / f'classification_{h}' / 'results.json').read_text()) for h in (30, 60)}
+    names = {'original_reference': '첫 개선 실험의 기준 모델', 'previous_core6': '직전 개선 후보(31개 특징·최근 6개월)',
+             'tenure_control': '보유·관측 기간·달력만 사용한 비교 모델',
+             'reliable_decay180': '새 후보(관측 신뢰도 특징·시간 가중치)'}
+    lines = ['# 고정된 학습·평가 분할에서의 추가 모델 비교', '', '작성일: 2026-09-25.', '',
+        '## 판단', '',
+        '기존 실험은 각 예측 시점의 미래 정답을 직접 학습하지 않았지만, 매달 재학습하며 앞선 평가월의 정답이 성숙하면 뒤 학습에 편입하는 운영 재현이었다. 또한 평가 기간을 반복해서 확인했다. 따라서 영구 고정된, 처음 보는 독립 테스트였다고 말할 수 없다.', '',
+        '이번에는 모델과 전처리를 2026-03-30에 한 번 학습한 뒤 고정하고, 모든 평가 기간의 고객·기준일 행을 끝까지 학습에서 제외했다. 추가 후보는 과거 개발 기간에서만 선택했다. **이전 평가 노출 이력은 없어지지 않으므로 이번 결과도 독립 테스트가 아닌 고정 모델 시간순 재검증이다.**', '',
+        '이번 추가 후보는 직전 개선 후보보다 두 예측 기간 모두 평균 AP가 낮았다. 포착률 차이도 작아 추가 성능 향상을 확보했다고 판단하지 않는다. 더 높은 평가 점수를 보인 비교용 단순 모델을 평가 후 승자로 바꾸지도 않았다.', '',
+        '## 고정 규칙', '',
+        '| 단계 | 날짜와 규칙 |', '|---|---|',
+        '| 모델 선택용 개발 시점 | 2025-08-31, 2025-10-31, 2025-12-31 |',
+        '| 각 개발 시점의 학습 | 그 시점에 전체 예측 기간의 정답이 관측된 과거 표본만 |',
+        '| 최종 모델 동결일 | 2026-03-30 |',
+        '| 30일 최종 학습 상한 | 2026-02-28 고객 상태, 정답은 2026-03-30까지 |',
+        '| 60일 최종 학습 상한 | 2025-12-31 고객 상태, 정답은 2026-03-01까지 |',
+        '| 30일 평가 기준일 | 2026-03-31, 04-30, 05-31, 06-30 |',
+        '| 60일 평가 기준일 | 2026-03-31, 04-30, 05-31 |',
+        '| 평가 중 학습 | 하지 않음. 저장한 모델을 읽고 예측만 실행 |', '',
+        '개발 기간은 모델 선택 뒤 최종 학습에 다시 사용할 수 있으나, 최종 평가 기간은 학습에 들어가지 않는다. 2026-01-31의 60일 정답은 2026-04-01에 확정되므로 동결일 학습에 쓸 수 없다.', '',
+        '같은 고객의 과거와 미래 기록은 양쪽에 포함된다. 목표가 기존 고객의 미래 위험을 평가하는 것이기 때문이다. 같은 고객·같은 기준일 행은 양쪽에 포함되지 않는다. 이 결과는 완전히 새로운 고객만을 대상으로 한 일반화 검증이 아니다.', '',
+        '## 후보 선택', '',
+        '8개 후보를 각 예측 기간의 세 개발 시점 평균 AP로 선택했다. 기존 기준 모델, 직전 개선 후보, 보유 기간 중심 모델, 최근 9개월 학습, 최근 기록에 가중치를 주는 방식, 거래 간격을 계산할 기록이 충분한지 나타내는 특징, 핵심 특징 CatBoost를 포함한다.', '',
+        '| 예측 기간 | 선택된 후보 | 개발 평균 AP |', '|---|---|---:|']
+    for h, result in results.items():
+        selected = result['selected']
+        lines.append(f'| {h}일 | {selected} | {result["development"][selected]["mean_ap"]:.5f} |')
+    lines += ['', '후보 선택은 평가 루프를 시작하기 전에 selection.json에 저장했다. 모든 비교 모델을 학습·저장·재로딩한 뒤 평가했으며, 평가 루프에는 predict_proba만 있다. 평가 전후 모델 파일 해시도 일치한다.', '',
+        '## 동일한 고정 분할에서의 평균 성능', '',
+        '아래 평균은 30일은 네 시점, 60일은 세 시점의 단순 평균이다. 이전 보고서의 매월 재학습 점수와 직접 비교하지 않고, 기존 방법도 이번 고정 규칙에서 다시 학습했다.', '',
+        '| 예측 기간 | 방법 | AUC | AP | 상위 10% 포착률 |', '|---|---|---:|---:|---:|']
+    for h, result in results.items():
+        for name, value in result['evaluation'].items():
+            lines.append(f'| {h}일 | {names.get(name, name)} | {value["mean_auc"]:.4f} | {value["mean_ap"]:.4f} | {value["mean_top10_recall"]:.2%} |')
+    lines += ['', '직전 개선 후보의 60일 성능은 고정된 모델 비교에서도 최초 기준 모델보다 높았다. 그러나 이번에 추가한 새 후보가 직전 후보보다 더 좋아졌다는 근거는 확보하지 못했다. 보유 기간 중심 비교 모델도 강하므로 거래 정보의 추가 가치가 입증됐다고 해석할 수 없다.', '',
+        '## 직전 후보와 새 후보의 시점별 포착 수', '',
+        '| 예측 기간 | 기준일 | 확인 대상 수 | 실제 해지 수 | 직전 후보 포착 수 | 새 후보 포착 수 |',
+        '|---|---|---:|---:|---:|---:|']
+    for h, result in results.items():
+        for a, b in zip(result['evaluation']['previous_core6']['folds'], result['evaluation'][result['selected']]['folds']):
+            lines.append(f'| {h}일 | {a["date"]} | {a["top10_size"]:,} | {a["positive"]:,} | {a["top10_caught"]:,} | {b["top10_caught"]:,} |')
+    lines += ['', '60일은 같은 해지 사건이 여러 기준일에서 반복될 수 있다. 포착 수를 합산해 고유 고객 수로 설명하지 않는다.', '',
+        '## 실제 분할 점검', '',
+        '| 예측 기간 | 모델 | 학습 행 | 마지막 학습 기준일 | 학습 라벨 종료일 | 전체 평가와 같은 고객·기준일 중복 |',
+        '|---|---|---:|---|---|---:|']
+    for h, result in results.items():
+        for name, value in result['evaluation'].items():
+            a = value['audit']
+            lines.append(f'| {h}일 | {name} | {a["training_rows"]:,} | {a["training_last_as_of"]} | {a["training_label_end_max"]} | {a["training_evaluation_key_overlap"]} |')
+    lines += ['',
+        '- 미래 거래·정답이 과거 특징에 영향을 주지 않는지, 관측 기간 미완료를 0으로 라벨링하지 않는지, 학습에 성숙한 정답만 쓰는지 확인했다.',
+        '- 개발 정답이 모델 동결일 이후에 확정되거나 평가 기간 행을 학습에 넣으려 하면 오류가 나는 테스트를 추가했다.',
+        '- 기존 테스트와 신규 테스트 총 8개가 통과했다. 학습/평가 분리의 독립 코드 검토에서도 직접 누수를 발견하지 못했다.',
+        '- 기존 benchmark의 직접 --horizon 60 옵션에서 개발일을 잘못 사용할 수 있는 잠재 경로를 수정했다. 이미 보고한 60일 결과는 다른 transfer 경로였으므로 그 문제의 영향을 받지 않았다.',
+        '- 점수는 보정된 해지 확률이 아니다. 원본의 완전 관측·정보 도착 시점은 여전히 가정이다.', '',
+        '## 파일', '',
+        '- 기존 분리 감사: [synchrony_split_audit.md](synchrony_split_audit.md).',
+        '- 실행 방법: [실험 README](../src/experiments/synchrony/README.md).',
+        '- 원본 결과/모델: `outputs/synchrony_strict/classification_30/`, `outputs/synchrony_strict/classification_60/`.',
+        '- 기존 서비스 모델은 교체하지 않았다. 이번 후보는 개선이 입증된 새 운영 모델로 승격하지 않았다.', '',
+        '아직 확인하지 않은 새 기간 또는 별도 데이터가 있어야 독립적인 최종 성능을 평가할 수 있다. 이번 결과는 데이터나 알고리즘의 성능 상한을 입증하지 않는다.',
+    ]
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text('\n'.join(lines) + '\n')
+    print(args.output)
+
+
+if __name__ == '__main__':
+    main()
