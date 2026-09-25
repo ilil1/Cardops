@@ -17,7 +17,13 @@ CardOps는 고객 데이터 적재부터 머신러닝 분석, 고객 조회, 캠
 
 BankChurners는 고객별 월별 반복 기록을 제공하지 않으므로, 현재 서비스의 분류 점수를 **미래 특정 기간의 해지 확률**로 해석할 수 없습니다. 미래 해지 예측의 검증 범위는 아래 Synchrony 실험에서 별도로 설명합니다.
 
-## 2. 주요 기능
+## 2. 데이터 전환 배경: 기존 한계와 개선 방향
+
+BankChurners 기반 구현에서 발견한 정적 분류, 이미 이탈한 고객의 캠페인 포함, 활동성 갭·군집 해석, 합성 성과 및 월별 MLOps의 한계는 별도 문서에 정리했습니다. 이 한계를 개선하기 위해 거래 시점과 카드 해지일을 연결하는 Synchrony 실험을 진행하고 있습니다.
+
+**[기존 데이터의 문제점과 전환 배경 README](docs/data_transition/README.md)**에서 기존 분석 내용, 새로운 데이터로 개선하는 방향, 현재 구현 범위와 남은 작업을 확인할 수 있습니다.
+
+## 3. 주요 기능
 
 ### 인증과 계정 관리
 
@@ -60,7 +66,7 @@ BankChurners는 고객별 월별 반복 기록을 제공하지 않으므로, 현
        → 캠페인 생성·담당자 배정 → 처리 결과 입력 → 이력 확인
 ```
 
-## 3. 시스템 구조
+## 4. 시스템 구조
 
 ```mermaid
 flowchart LR
@@ -95,7 +101,7 @@ flowchart LR
 | 테스트 | Vitest, Testing Library, Python unittest·pytest |
 | 실행·배포 | Docker Compose, Render Docker Web Service·Static Site |
 
-## 4. 데이터와 모델
+## 5. 데이터와 모델
 
 ### BankChurners — 현재 서비스 연결
 
@@ -143,7 +149,7 @@ flowchart LR
 
 [실험 실행 방법](src/experiments/synchrony/README.md) · [개선 계획](docs/synchrony_improvement_plan.md) · [상세 결과와 신뢰구간](docs/synchrony_advanced_evaluation.md) · [학습·평가 분리 점검](docs/synchrony_split_audit.md)
 
-## 5. 로컬 실행
+## 6. 로컬 실행
 
 Docker Desktop 또는 Docker Engine과 Compose를 준비하고, 저장소 루트에서 실행합니다.
 
@@ -191,7 +197,7 @@ docker compose exec backend python -m backend.scripts.run_analysis_batch
 
 실행 순서·로그·모델 재생성은 [Docker Compose 실행 가이드](docs/docker_compose_runbook.md)를 참고합니다. 호스트에서 NestJS를 직접 실행하는 방법은 [백엔드 문서](backend/README.md)에 있습니다.
 
-## 6. 검증 명령
+## 7. 검증 명령
 
 호스트에서 개발·검증할 때는 Node.js 24, pnpm 11, Python 환경을 준비합니다. 아래는 저장소 루트에서 실행하는 명령입니다.
 
@@ -217,7 +223,7 @@ Synchrony 추가 개선 작업에서는 미래 정보 변경 불변성, 학습·
 
 NestJS 테스트는 현재 API의 업무 규칙을 검증합니다. `backend/tests/`에는 이전 Python API 테스트도 남아 있으며, 두 구현의 전체 DB 응답 동등성을 보장하는 통합 검증은 별도 범위입니다.
 
-## 7. 배포 구성
+## 8. 배포 구성
 
 [`render.yaml`](render.yaml)에 두 서비스를 정의합니다.
 
@@ -230,7 +236,7 @@ NestJS 테스트는 현재 API의 업무 규칙을 검증합니다. `backend/tes
 
 배포 설정은 [Render 배포 가이드](docs/free_render_deploy.md), 컨테이너 실행 정의는 [`compose.yaml`](compose.yaml)을 참고합니다.
 
-## 8. 디렉터리 구조
+## 9. 디렉터리 구조
 
 ```text
 CardOps/
@@ -255,12 +261,13 @@ CardOps/
 
 생성 모델과 대용량 실험 산출물은 기본적으로 Git에서 제외합니다. 실행에 필요한 설정과 재현 코드는 저장소에서 관리합니다.
 
-## 9. 상세 문서
+## 10. 상세 문서
 
 | 문서 | 내용 |
 | --- | --- |
 | [백엔드](backend/README.md) | NestJS·Python 연결과 API 실행 |
 | [프론트엔드](frontend/README.md) | 화면 구성과 프론트엔드 개발 |
+| [데이터 전환 배경](docs/data_transition/README.md) | BankChurners의 한계와 새로운 데이터로 개선하는 이유 |
 | [DB 스키마](docs/database_schema.md) | 고객·분석·캠페인·인증 데이터 구조 |
 | [고객 분석 배치](docs/phase2_analysis_batch.md) | 모델 실행과 분석 결과 저장 |
 | [고객 분석 조회 API](docs/customer_insights_api.md) | 목록·상세·이력 조회 |
