@@ -1,5 +1,7 @@
 # 1단계 구현 문서: 고객 데이터와 분석 결과 저장 기반
 
+> 이 문서는 이전 Python API 구현 기록입니다. 현재 서버는 [Core·AI 분리 구조](../backend/README.md)로 실행하며, 아래 이전 API 실행 예시는 현행 배포 진입점이 아닙니다.
+
 ## 1. 문서 목적
 
 이 문서는 CardOps 프로젝트에 구현된 다음 기능의 구조와 사용법을 설명합니다.
@@ -78,29 +80,29 @@ backfill됩니다. 신규 대상은 명시적인 캠페인 계보와 상태 전�
 
 | 파일 | 역할 |
 |---|---|
-| backend/alembic.ini | Alembic 스크립트 위치와 기본 설정 |
-| backend/migrations/env.py | SQLAlchemy metadata와 DB 연결을 Alembic에 연결 |
-| backend/migrations/versions/20260801_0001_users_baseline.py | 기존 users 구조의 기준선 revision |
-| backend/migrations/versions/20260801_0002_customer_operations.py | 역할·고객·분석·캠페인 테이블 생성 |
-| backend/migrations/versions/20260801_0003_p0_data_governance.py | 승인 기본값·입력 스냅샷·정책 hash 추가 |
-| backend/migrations/versions/20260801_0004_scoring_lineage.py | scoring batch·decision policy·기준일 연결 |
-| backend/migrations/versions/20260801_0005_campaign_domain.py | campaigns·campaign_events·대상 결과 집계 필드와 기존 데이터 backfill |
-| backend/migrations/versions/20260801_0006_campaign_converted_not_null.py | 전환 여부 컬럼을 필수 boolean으로 고정 |
-| backend/migrations/versions/20260801_0007_bulk_targeting.py | 수신 거부·최근 접촉 필드와 세그먼트 일괄 타기팅 배치 추가 |
-| backend/migrations/versions/20260801_0008_performance_measurement.py | A/B 실험·유지·비용·매출 성과 필드 추가 |
-| backend/migrations/versions/20260802_0009_immediate_correctness.py | 시점 재시도·후보 스냅샷·금액 정밀도·인증 감사 보완 |
-| backend/migrations/versions/20260802_0010_campaign_money_defaults.py | MySQL 금액 컬럼 서버 기본값 복구 |
-| backend/app/database.py | DB 엔진·세션 생성 및 migration 여부 검증 |
-| backend/app/models.py | SQLAlchemy 모델 전체 정의 |
-| backend/app/enums.py | 역할·상태·위험등급 상수 정의 |
-| backend/app/migration_runner.py | 기존 DB 호환 처리와 upgrade head 실행 |
-| backend/app/customer_import.py | CSV 검증, 변환, MySQL/SQLite upsert |
-| backend/scripts/import_customers.py | 고객 적재 CLI 진입점 |
-| backend/app/analysis_batch.py | 세 모델 실행과 customer_insights 저장 |
-| backend/scripts/run_analysis_batch.py | 모델 분석 배치 CLI 진입점 |
-| backend/docker-entrypoint.sh | 컨테이너 시작 시 migration 후 API 실행 |
+| backend/ai-service/alembic.ini | Alembic 스크립트 위치와 기본 설정 |
+| backend/ai-service/migrations/env.py | SQLAlchemy metadata와 DB 연결을 Alembic에 연결 |
+| backend/ai-service/migrations/versions/20260801_0001_users_baseline.py | 기존 users 구조의 기준선 revision |
+| backend/ai-service/migrations/versions/20260801_0002_customer_operations.py | 역할·고객·분석·캠페인 테이블 생성 |
+| backend/ai-service/migrations/versions/20260801_0003_p0_data_governance.py | 승인 기본값·입력 스냅샷·정책 hash 추가 |
+| backend/ai-service/migrations/versions/20260801_0004_scoring_lineage.py | scoring batch·decision policy·기준일 연결 |
+| backend/ai-service/migrations/versions/20260801_0005_campaign_domain.py | campaigns·campaign_events·대상 결과 집계 필드와 기존 데이터 backfill |
+| backend/ai-service/migrations/versions/20260801_0006_campaign_converted_not_null.py | 전환 여부 컬럼을 필수 boolean으로 고정 |
+| backend/ai-service/migrations/versions/20260801_0007_bulk_targeting.py | 수신 거부·최근 접촉 필드와 세그먼트 일괄 타기팅 배치 추가 |
+| backend/ai-service/migrations/versions/20260801_0008_performance_measurement.py | A/B 실험·유지·비용·매출 성과 필드 추가 |
+| backend/ai-service/migrations/versions/20260802_0009_immediate_correctness.py | 시점 재시도·후보 스냅샷·금액 정밀도·인증 감사 보완 |
+| backend/ai-service/migrations/versions/20260802_0010_campaign_money_defaults.py | MySQL 금액 컬럼 서버 기본값 복구 |
+| backend/ai-service/cardops_ai/app/database.py | DB 엔진·세션 생성 및 migration 여부 검증 |
+| backend/ai-service/cardops_ai/app/models.py | SQLAlchemy 모델 전체 정의 |
+| backend/ai-service/cardops_ai/app/enums.py | 역할·상태·위험등급 상수 정의 |
+| backend/ai-service/cardops_ai/app/migration_runner.py | 기존 DB 호환 처리와 upgrade head 실행 |
+| backend/ai-service/cardops_ai/app/customer_import.py | CSV 검증, 변환, MySQL/SQLite upsert |
+| backend/ai-service/cardops_ai/scripts/import_customers.py | 고객 적재 CLI 진입점 |
+| backend/ai-service/cardops_ai/app/analysis_batch.py | 세 모델 실행과 customer_insights 저장 |
+| backend/ai-service/cardops_ai/scripts/run_analysis_batch.py | 모델 분석 배치 CLI 진입점 |
+| backend/ai-service/init-db.sh | 컨테이너 시작 시 migration 후 API 실행 |
 | compose.yaml | MySQL·Backend·Frontend 연결과 data 읽기 전용 mount |
-| backend/tests/test_persistence.py | migration·기존 회원·적재·관계 검증 |
+| backend/ai-service/tests/test_persistence.py | migration·기존 회원·적재·관계 검증 |
 
 ## 4. 데이터베이스 구조
 
@@ -438,7 +440,7 @@ A/B 대상군·대조군, 구조화 결과 시각, 유지 관측값과 캠페인
 생성하고 있었습니다. 이 DB에 새 migration을 바로 적용하면 첫 revision이
 이미 존재하는 users를 다시 만들려고 할 수 있습니다.
 
-backend.app.migration_runner는 다음 방식으로 이를 처리합니다.
+cardops_ai.app.migration_runner는 다음 방식으로 이를 처리합니다.
 
 1. alembic_version의 현재 revision을 확인합니다.
 2. revision이 없고 users가 있으면 기존 필수 컬럼을 확인합니다.
@@ -478,13 +480,13 @@ docker compose ps
 Backend 컨테이너의 docker-entrypoint.sh가 다음 순서로 실행됩니다.
 
 ~~~text
-python -m backend.app.migration_runner
+python -m cardops_ai.app.migration_runner
         │
         ▼
 alembic upgrade head
         │
         ▼
-uvicorn backend.app.main:app --host 0.0.0.0 --port 8000
+uvicorn cardops_ai.app.legacy_main:app --host 0.0.0.0 --port 8000
 ~~~
 
 고객 CSV는 compose.yaml의 다음 읽기 전용 mount로 컨테이너에 전달됩니다.
@@ -496,7 +498,7 @@ uvicorn backend.app.main:app --host 0.0.0.0 --port 8000
 서비스 시작 후 고객을 적재합니다.
 
 ~~~bash
-docker compose exec backend python -m backend.scripts.import_customers
+docker compose run --rm jobs python -m cardops_ai.scripts.import_customers
 ~~~
 
 ### 6.2 호스트에서 Backend 실행
@@ -506,9 +508,9 @@ docker compose exec backend python -m backend.scripts.import_customers
 
 ~~~bash
 source project_venv/bin/activate
-python -m backend.app.migration_runner
-python -m backend.scripts.import_customers
-python -m uvicorn backend.app.main:app --reload
+python -m cardops_ai.app.migration_runner
+python -m cardops_ai.scripts.import_customers
+python -m uvicorn cardops_ai.app.legacy_main:app --reload
 ~~~
 
 호스트에서 실행하는 FastAPI는 Docker 내부 주소인 mysql:3306에 접근할 수
@@ -518,15 +520,15 @@ mysql:3306을 사용합니다.
 ### 6.3 Alembic 상태 확인
 
 ~~~bash
-alembic -c backend/alembic.ini current
-alembic -c backend/alembic.ini history
-alembic -c backend/alembic.ini check
+alembic -c backend/ai-service/alembic.ini current
+alembic -c backend/ai-service/alembic.ini history
+alembic -c backend/ai-service/alembic.ini check
 ~~~
 
 가상환경의 실행 파일을 직접 사용할 수도 있습니다.
 
 ~~~bash
-project_venv/bin/alembic -c backend/alembic.ini current
+project_venv/bin/alembic -c backend/ai-service/alembic.ini current
 ~~~
 
 check 결과가 No new upgrade operations detected.이면 현재 SQLAlchemy 모델과
@@ -564,7 +566,7 @@ customer_import.py는 DB dialect에 따라 upsert를 사용합니다.
 따라서 다음 명령을 여러 번 실행해도 고객 행이 계속 증가하지 않습니다.
 
 ~~~bash
-docker compose exec backend python -m backend.scripts.import_customers
+docker compose run --rm jobs python -m cardops_ai.scripts.import_customers
 ~~~
 
 출력 예시는 다음과 같습니다.
@@ -592,7 +594,7 @@ Persistence 테스트는 다음을 검증합니다.
 실행 명령:
 
 ~~~bash
-project_venv/bin/python -m pytest backend/tests -q
+project_venv/bin/python -m pytest backend/ai-service/tests -q
 ~~~
 
 현재 구현 검증 결과는 Backend 테스트 31개 통과입니다. Frontend 인증 타입과

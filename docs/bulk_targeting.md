@@ -175,7 +175,7 @@ activity-gap threshold, 우량군 이름, 최대 대상 수, 기준일, A/B 대�
 ## 검증
 
 ```bash
-./project_venv/bin/python -m pytest backend/tests -q
+./project_venv/bin/python -m pytest backend/ai-service/tests -q
 PATH=/Users/geonwookim/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:$PATH \
   /Users/geonwookim/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback/pnpm \
   --dir frontend run typecheck

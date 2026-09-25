@@ -20,13 +20,13 @@
 Docker 환경이 실행 중이고 `.env`가 로컬 개발 설정인 상태에서 실행합니다.
 
 ```bash
-docker compose exec backend python -m backend.scripts.seed_demo_campaign
+docker compose run --rm jobs python -m cardops_ai.scripts.seed_demo_campaign
 ```
 
 기본값은 캠페인별 180명입니다. 빠른 UI 확인이 필요하면 대상 수를 줄일 수 있습니다.
 
 ```bash
-docker compose exec backend python -m backend.scripts.seed_demo_campaign --limit-per-campaign 60
+docker compose run --rm jobs python -m cardops_ai.scripts.seed_demo_campaign --limit-per-campaign 60
 ```
 
 동일한 `[DEMO]` 캠페인이 이미 있으면 중복 생성하지 않고 종료합니다. 운영 환경이나 원격 DB에서는 실행이 차단됩니다.

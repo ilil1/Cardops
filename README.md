@@ -2,7 +2,7 @@
 
 **신용카드 고객 분석 · 이탈 예측 · 캠페인 관리 개인 프로젝트**
 
-CardOps는 고객 데이터 적재부터 머신러닝 분석, 고객 조회, 캠페인 대상 선정, 담당자 배정과 처리 이력까지 연결하는 웹 애플리케이션입니다. React 화면과 NestJS API를 중심으로 구성하며, 모델 학습·추론과 분석 배치는 Python으로 실행합니다.
+CardOps는 고객 데이터 적재부터 머신러닝 분석, 고객 조회, 캠페인 대상 선정, 담당자 배정과 처리 이력까지 연결하는 웹 애플리케이션입니다. React 화면, 업무 API를 담당하는 NestJS **core-service**, 모델 추론을 담당하는 FastAPI **ai-service**로 구성하며, 모델 학습과 분석 배치는 Python으로 실행합니다.
 
 현재 서비스는 BankChurners 기반 분류·회귀·군집 분석을 제공합니다. 날짜별 거래와 카드 해지일을 사용하는 Synchrony 데이터로 **향후 30일·60일 내 해지 예측을 검증하는 오프라인 실험**도 구현했습니다.
 
@@ -70,9 +70,9 @@ BankChurners 기반 구현에서 발견한 정적 분류, 이미 이탈한 고�
 
 ```mermaid
 flowchart LR
-    Web[React 웹 화면] -->|REST API · 인증 쿠키| API[NestJS API]
+    Web[React 웹 화면] -->|REST API · 인증 쿠키| API[NestJS core-service]
     API -->|인증 · 조회 · 캠페인| DB[(MySQL / TiDB)]
-    API -->|JSON Lines| Worker[Python 추론 프로세스]
+    API -->|HTTP · 서비스 토큰| Worker[FastAPI ai-service]
     Worker --> Models[분류 모델 · 얼굴 ONNX 모델]
     Batch[Python 고객 분석 배치] --> Analysis[분류 · 회귀 · 군집 모델]
     Batch --> DB
@@ -81,20 +81,20 @@ flowchart LR
     Builder --> Analysis
 ```
 
-- **NestJS**: HTTP API, 인증·권한, 고객 분석 조회, 캠페인 업무 로직을 담당합니다.
-- **Python 추론 프로세스**: NestJS와 같은 컨테이너에서 모델을 적재하고 표준 입출력으로 요청을 처리합니다. 별도의 HTTP 서버를 띄우지 않습니다.
+- **NestJS core-service**: 기능별 `controllers → services → repositories` 레이어로 나뉩니다. 컨트롤러는 HTTP·쿠키, 서비스는 권한·업무 규칙, Repository는 SQL·DB 접근을 담당합니다. 여러 저장 작업은 UnitOfWork로 같은 트랜잭션에 묶습니다.
+- **FastAPI ai-service**: 별도 Python 컨테이너에서 모델을 적재하고 예측·얼굴 검출·임베딩 API를 제공합니다. Core가 공유 토큰으로 호출하며 사용자 인증과 캠페인 처리는 Core에 있습니다.
 - **Python 배치**: 고객 데이터를 적재하고 분류·회귀·군집 결과, 고객 특성 스냅샷, 모델 실행 및 스코어링 배치 이력을 저장합니다.
 - **DB**: NestJS는 `mysql2`, Python은 SQLAlchemy를 사용하며, 스키마 변경은 Alembic으로 관리합니다.
 - **Synchrony 실험**: `src/experiments/synchrony/`에서 독립 실행하며, 결과를 기존 서비스 DB나 API에 자동 반영하지 않습니다.
 
-이전 FastAPI HTTP 코드는 `backend/app/main.py`와 `backend/app/api/`에 남아 있습니다. 현재 Compose와 Render 설정의 API 실행 진입점은 `backend/nest/`입니다.
+운영 진입점은 `backend/core-service/src/main.ts`와 `backend/ai-service/cardops_ai/main.py`입니다. 이전 Python 업무 API는 `cardops_ai/app/legacy_main.py`에 비교 테스트용으로 보존하며 서비스에 등록하지 않습니다. [백엔드 구조와 실행](backend/README.md)
 
 ### 기술 스택
 
 | 영역 | 기술 |
 | --- | --- |
 | Frontend | React 19, TypeScript, Vite, Recharts |
-| Backend | NestJS 11, Node.js 24, mysql2 |
+| Backend | NestJS 11·Node.js 24 (Core), FastAPI·Python 3.13 (AI), mysql2 |
 | Python 실행 환경 | Python 3.13, SQLAlchemy, Alembic |
 | 데이터·모델 | pandas, NumPy, scikit-learn, LightGBM, XGBoost, CatBoost, joblib, ONNX |
 | 데이터베이스 | MySQL 8.4, TiDB Cloud 연결 설정 |
@@ -166,6 +166,7 @@ cp .env.example .env
 | `MYSQL_ROOT_PASSWORD` | 로컬 MySQL 관리자 비밀번호 |
 | `MYSQL_PASSWORD` | 애플리케이션 DB 계정 비밀번호 |
 | `JWT_SECRET` | 인증 쿠키 서명용 32자 이상의 임의 문자열 |
+| `AI_SERVICE_TOKEN` | Core·AI 공유 토큰, JWT와 별도로 만든 32자 이상의 문자열 |
 | `MYSQL_PORT` | 호스트 MySQL 포트, 예제 파일은 `3307` |
 
 로컬 시연 계정이 필요하면 `ALLOW_TEST_USER_SEEDING=true`로 설정하고 `TEST_ADMIN_PASSWORD`, `TEST_ANALYST_PASSWORD`, `TEST_OPERATIONS_PASSWORD`, `TEST_MARKETING_PASSWORD`에 각각 12자 이상의 로컬 비밀번호를 지정합니다. 예제 환경 파일에서는 시드가 비활성화되어 있습니다. `.env`는 Git에 포함하지 않습니다.
@@ -177,13 +178,13 @@ docker compose up -d --build
 docker compose ps -a
 ```
 
-처음 실행하면 `model-builder`가 얼굴 모델을 준비하고 분류·회귀·군집 모델을 생성합니다. 이 작업이 `Exited (0)`으로 끝나고 MySQL이 준비되면 백엔드가 마이그레이션과 설정된 계정 시드를 실행합니다.
+처음 실행하면 `model-builder`가 모델을 준비한 뒤 AI 서비스가 시작됩니다. 별도로 `db-init`이 Alembic 마이그레이션과 선택한 계정 시드를 완료하면 Core 서비스가 시작됩니다. Node 이미지에는 Python을 포함하지 않습니다.
 
 백엔드 시작 후 고객 데이터와 분석 결과를 적재합니다.
 
 ```bash
-docker compose exec backend python -m backend.scripts.import_customers
-docker compose exec backend python -m backend.scripts.run_analysis_batch
+docker compose run --rm jobs python -m cardops_ai.scripts.import_customers
+docker compose run --rm jobs python -m cardops_ai.scripts.run_analysis_batch
 ```
 
 | 접속 대상 | 주소 |
@@ -203,10 +204,14 @@ docker compose exec backend python -m backend.scripts.run_analysis_batch
 
 ```bash
 # NestJS
-npm --prefix backend/nest ci
-npm --prefix backend/nest run typecheck
-npm --prefix backend/nest test
-npm --prefix backend/nest run build
+npm --prefix backend/core-service ci
+npm --prefix backend/core-service run typecheck
+npm --prefix backend/core-service test
+npm --prefix backend/core-service run build
+
+# FastAPI 및 기존 Python 배치·마이그레이션
+python -m pip install -r backend/ai-service/requirements-dev.txt
+python -m pytest backend/ai-service/tests -q
 
 # React
 pnpm --dir frontend install --frozen-lockfile
@@ -221,16 +226,19 @@ python -m unittest discover -s src/experiments/synchrony -t . -p 'test_*.py'
 
 Synchrony 추가 개선 작업에서는 미래 정보 변경 불변성, 학습·평가 분리, 위험 일수 계산, 순위·bootstrap, 후보 선택 규칙에 관한 **테스트 34개**가 통과했습니다. 원본·입력·코드·저장 모델의 일관성은 별도 **68개 검사**로 확인했으며, 기록은 [실험 보고서](docs/synchrony_advanced_evaluation.md)에 있습니다. 이 수치는 전체 서비스의 통합 테스트 결과를 뜻하지 않습니다.
 
-NestJS 테스트는 현재 API의 업무 규칙을 검증합니다. `backend/tests/`에는 이전 Python API 테스트도 남아 있으며, 두 구현의 전체 DB 응답 동등성을 보장하는 통합 검증은 별도 범위입니다.
+NestJS 테스트는 API 경로 호환성, 레이어 의존성, 업무 규칙, 트랜잭션과 AI 호출 실패 처리를 검증합니다. AI 테스트는 내부 토큰 인증·입력 검증·모델 오류를 확인합니다. `backend/ai-service/tests/`의 기존 Python 업무 API 테스트는 비교용이며 NestJS의 전체 DB 응답 동등성을 보장하지 않습니다.
+
+서비스 분리 작업에서는 **Core 테스트 23개·신규 AI 테스트 15개**, **HTTP 검사 58개**(정상 서비스 54개·AI 중단 상태 4개), 두 Docker 이미지 빌드를 확인했습니다. 기존 Python 비교 테스트의 실패 2개와 건너뛴 검사 4개를 포함한 검증 범위는 [구조 변경 검증 기록](docs/backend_service_refactor.md)에 정리했습니다.
 
 ## 8. 배포 구성
 
-[`render.yaml`](render.yaml)에 두 서비스를 정의합니다.
+[`render.yaml`](render.yaml)에 세 서비스를 정의합니다.
 
 - **Frontend**: React 빌드 결과를 Render Static Site로 제공
-- **Backend**: NestJS와 Python 런타임을 포함한 Docker Web Service, `/ready` 상태 확인
+- **Core**: NestJS Docker Web Service (`cardops-backend`), `/live` 생존 확인
+- **AI**: FastAPI Docker Web Service (`cardops-ai`), `/ready` 모델 준비 확인. 무료 서비스 간 호출은 HTTPS와 공유 토큰을 사용
 - **DB**: `DATABASE_URL`로 MySQL 호환 DB 연결, TiDB Cloud 환경 설정 지원
-- **환경 설정**: `JWT_SECRET`, `CORS_ORIGINS`, `AUTH_COOKIE_SECURE`, `VITE_API_BASE_URL` 등
+- **환경 설정**: `JWT_SECRET`, `CORS_ORIGINS`, `AUTH_COOKIE_SECURE`, `VITE_API_BASE_URL`, Core의 `AI_SERVICE_URL`, 두 서비스가 공유하는 `AI_SERVICE_TOKEN` 등
 
 현재 저장소에는 GitHub Actions workflow가 없습니다. Render의 Git 저장소 연동으로 배포하는 구성이며, 자동 배포 활성화와 대상 브랜치는 Render 서비스 설정에서 관리합니다. 모델을 이미지 빌드 과정에서 생성하는 작업과 데이터 유입에 따른 자동 재학습·승격은 구분합니다.
 
@@ -241,11 +249,9 @@ NestJS 테스트는 현재 API의 업무 규칙을 검증합니다. `backend/tes
 ```text
 CardOps/
 ├── backend/
-│   ├── nest/                 # 현재 NestJS API
-│   ├── inference_worker.py   # Python 모델 추론 프로세스
-│   ├── app/                  # Python 모델·ORM·배치 및 이전 HTTP 코드
-│   ├── migrations/           # Alembic 마이그레이션
-│   └── scripts/              # 고객 적재·분석·시연 데이터 CLI
+│   ├── core-service/         # NestJS: Controller → Service → Repository
+│   ├── ai-service/           # FastAPI 추론 + Python 배치·마이그레이션
+│   └── README.md             # 서비스 경계·실행·호환성
 ├── frontend/                 # React 화면·API 클라이언트·테스트
 ├── src/
 │   ├── final/                # BankChurners 최종 모델 학습
@@ -265,7 +271,10 @@ CardOps/
 
 | 문서 | 내용 |
 | --- | --- |
-| [백엔드](backend/README.md) | NestJS·Python 연결과 API 실행 |
+| [백엔드](backend/README.md) | Core·AI 서비스 경계, 레이어별 책임과 HTTP 통신 |
+| [Core 서비스](backend/core-service/README.md) | NestJS 레이어드 아키텍처와 개발·실행·검증 |
+| [AI 서비스](backend/ai-service/README.md) | FastAPI 추론 API, 서비스 토큰과 Python 실행 |
+| [구조 변경 검증](docs/backend_service_refactor.md) | 서비스 분리 검증 결과와 기존 테스트의 제한 |
 | [프론트엔드](frontend/README.md) | 화면 구성과 프론트엔드 개발 |
 | [데이터 전환 배경](docs/data_transition/README.md) | BankChurners의 한계와 새로운 데이터로 개선하는 이유 |
 | [DB 스키마](docs/database_schema.md) | 고객·분석·캠페인·인증 데이터 구조 |

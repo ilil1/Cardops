@@ -28,7 +28,7 @@
 
 새 데이터로 전환할 때에도 예측 기준일에 이미 해지한 고객을 제외하는 규칙을 모델 실험과 실제 캠페인 대상 선정에 모두 반영해야 합니다.
 
-근거: [고객 데이터 적재 필드](../../backend/app/customer_import.py) · [분석 대상 점수화](../../backend/app/analysis_batch.py)
+근거: [고객 데이터 적재 필드](../../backend/ai-service/cardops_ai/app/customer_import.py) · [분석 대상 점수화](../../backend/ai-service/cardops_ai/app/analysis_batch.py)
 
 ### 1.3 회귀 모델의 활동성 갭은 월별 하락이 아니다
 
@@ -44,7 +44,7 @@
 
 현재 지표의 설명은 “**모델 예상 대비 거래량 차이**”가 적절합니다. 월별 하락이나 다음 달 거래량을 다루려면 서로 다른 관측 기간을 구분할 수 있는 기록과 그에 맞는 정답을 구성해야 합니다.
 
-근거: [회귀 목표값 정의](../../src/feature_engine/regression_features.py) · [활동성 갭 계산](../../backend/app/analysis_batch.py)
+근거: [회귀 목표값 정의](../../src/feature_engine/regression_features.py) · [활동성 갭 계산](../../backend/ai-service/cardops_ai/app/analysis_batch.py)
 
 ### 1.4 군집 이름과 추천 행동은 모델이 효과를 확인해 준 것이 아니다
 
@@ -54,7 +54,7 @@
 
 프로토타입에서 추천 행동은 “**이 군집에 적용해 볼 업무 시나리오**”로 설명하는 것이 적절합니다. 모델이 효과적인 행동을 학습했다고 설명하려면 고객에게 어떤 행동을 적용했고 그 결과가 어땠는지 별도 관측과 검증이 필요합니다.
 
-근거: [군집 라벨과 권장 행동 부여](../../backend/app/analysis_batch.py)
+근거: [군집 라벨과 권장 행동 부여](../../backend/ai-service/cardops_ai/app/analysis_batch.py)
 
 ### 1.5 합성 데이터의 결과는 시연용 가정이다
 
@@ -64,7 +64,7 @@
 
 시연 자체는 가능하지만, 대시보드의 수치가 **합성 시나리오의 결과**라는 점을 사용자가 분명하게 알 수 있어야 합니다. 실제로 관측한 거래·해지 결과와 가정으로 생성한 캠페인 결과는 출처와 해석 범위를 표시해야 합니다.
 
-근거: [합성 고객 생성](../../backend/scripts/generate_synthetic_customers.py) · [데모 캠페인 결과 생성](../../backend/scripts/seed_demo_campaign.py)
+근거: [합성 고객 생성](../../backend/ai-service/cardops_ai/scripts/generate_synthetic_customers.py) · [데모 캠페인 결과 생성](../../backend/ai-service/cardops_ai/scripts/seed_demo_campaign.py)
 
 ## 2. 월별 MLOps 시뮬레이션에서 부족했던 점
 
@@ -74,7 +74,7 @@
 
 월별 데이터가 들어오는 모습을 합성해 보여줄 수는 있습니다. 이때는 월별 기록과 미래 결과를 만드는 규칙 자체가 시뮬레이션의 가정입니다. 이 가정으로 데이터 파이프라인·재학습·배포·모니터링 흐름을 시연할 수 있지만, 미래 이탈을 실제로 잘 예측한다는 증거로 사용하려면 별도 데이터와 검증이 필요합니다.
 
-근거: [분석 배치 날짜와 스냅샷 처리](../../backend/app/analysis_batch.py)
+근거: [분석 배치 날짜와 스냅샷 처리](../../backend/ai-service/cardops_ai/app/analysis_batch.py)
 
 ## 3. 기존 구현을 설명할 때의 기준
 

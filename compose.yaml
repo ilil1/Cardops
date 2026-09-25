@@ -1,3 +1,13 @@
+x-python-image: &python-image
+  image: cardops-ai-service:local
+  build:
+    context: .
+    dockerfile: backend/ai-service/Dockerfile
+
+x-database-env: &database-env
+  APP_ENV: ${APP_ENV:-development}
+  DATABASE_URL: mysql+pymysql://${MYSQL_USER:-cardops_app}:${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env}@mysql:3306/${MYSQL_DATABASE:-cardops}
+
 services:
   mysql:
     image: mysql:8.4
@@ -20,70 +30,101 @@ services:
       start_period: 20s
 
   model-builder:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: cardops-model-builder
-    working_dir: /app
+    <<: *python-image
     restart: "no"
     environment:
       FORCE_MODEL_REBUILD: ${FORCE_MODEL_REBUILD:-false}
     command:
       - sh
-      - -c
+      - -ec
       - |
-        python -m backend.scripts.download_face_models
-
+        python -m cardops_ai.scripts.download_face_models
         if [ "$${FORCE_MODEL_REBUILD}" = "true" ] || \
            [ ! -f /app/outputs/models/classification_manifest.json ] || \
            ! grep -q '"artifact": "classification_lightgbm_final.joblib"' /app/outputs/models/classification_manifest.json || \
            [ ! -f /app/outputs/models/classification_lightgbm_final.joblib ] || \
            [ ! -f /app/outputs/models/regression_model.joblib ] || \
            [ ! -f /app/outputs/models/clustering_activity_gap.joblib ]; then
-          python src/classification.py &&
-          python src/final/classification_final.py &&
-          python src/final/regression_final.py &&
+          python src/classification.py
+          python src/final/classification_final.py
+          python src/final/regression_final.py
           python src/final/clustering_final.py
-        else
-          echo "Final model artifacts already exist; skipping model training."
         fi
     volumes:
-      - ./src:/app/src:ro
-      - ./data:/app/data:ro
       - ./outputs:/app/outputs
 
-  backend:
+  db-init:
+    <<: *python-image
+    restart: "no"
+    command: ["sh", "backend/ai-service/init-db.sh"]
+    environment:
+      <<: *database-env
+      ALLOW_TEST_USER_SEEDING: ${ALLOW_TEST_USER_SEEDING:-false}
+      TEST_ADMIN_PASSWORD: ${TEST_ADMIN_PASSWORD:-}
+      TEST_ANALYST_PASSWORD: ${TEST_ANALYST_PASSWORD:-}
+      TEST_OPERATIONS_PASSWORD: ${TEST_OPERATIONS_PASSWORD:-}
+      TEST_MARKETING_PASSWORD: ${TEST_MARKETING_PASSWORD:-}
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  ai-service:
+    <<: *python-image
+    restart: unless-stopped
+    environment:
+      AI_SERVICE_TOKEN: ${AI_SERVICE_TOKEN:?Set AI_SERVICE_TOKEN in .env}
+      MODEL_DIR: /app/outputs/models
+    expose:
+      - "8001"
+    volumes:
+      - ./outputs/models:/app/outputs/models:ro
+    depends_on:
+      model-builder:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/ready', timeout=5)"]
+      interval: 15s
+      timeout: 10s
+      start_period: 60s
+      retries: 5
+
+  core-service:
     build:
       context: .
-      dockerfile: backend/nest/Dockerfile
-      args:
-        RENDER_BUILD_MODELS: "false"
-    container_name: cardops-backend
+      dockerfile: backend/core-service/Dockerfile
     restart: unless-stopped
     ports:
       - "8000:8000"
     environment:
-      APP_ENV: ${APP_ENV:-development}
-      DATABASE_URL: mysql+pymysql://${MYSQL_USER:-cardops_app}:${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env}@mysql:3306/${MYSQL_DATABASE:-cardops}
-      MODEL_DIR: /app/outputs/models
+      <<: *database-env
       JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
       AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-false}
-      ALLOW_TEST_USER_SEEDING: ${ALLOW_TEST_USER_SEEDING:-true}
-      LOGIN_MAX_ATTEMPTS: ${LOGIN_MAX_ATTEMPTS:-5}
-      LOGIN_IP_MAX_ATTEMPTS: ${LOGIN_IP_MAX_ATTEMPTS:-30}
-      LOGIN_RATE_WINDOW_SECONDS: ${LOGIN_RATE_WINDOW_SECONDS:-900}
-      TEST_ADMIN_PASSWORD: "${TEST_ADMIN_PASSWORD:-CardOpsAdmin2026!}"
-      TEST_ANALYST_PASSWORD: "${TEST_ANALYST_PASSWORD:-CardOpsAnalyst2026!}"
-      TEST_OPERATIONS_PASSWORD: "${TEST_OPERATIONS_PASSWORD:-CardOpsOps2026!}"
-      TEST_MARKETING_PASSWORD: "${TEST_MARKETING_PASSWORD:-CardOpsMarketing2026!}"
-    volumes:
-      - ./outputs/models:/app/outputs/models:ro
-      - ./data:/app/data:ro
-      # 원본(data/raw)은 읽기 전용으로 두고, 합성 데이터셋 사용하게 변경
-      - ./data/synthetic:/app/data/synthetic
+      AI_SERVICE_URL: http://ai-service:8001
+      AI_SERVICE_TOKEN: ${AI_SERVICE_TOKEN:?Set AI_SERVICE_TOKEN in .env}
+      AI_SERVICE_TIMEOUT_MS: ${AI_SERVICE_TIMEOUT_MS:-60000}
     depends_on:
-      mysql:
-        condition: service_healthy
+      db-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8000/live').then(r => {if (!r.ok) process.exit(1)}).catch(() => process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # Offline database/model jobs are explicitly invoked, never handled by an HTTP request.
+  jobs:
+    <<: *python-image
+    profiles: [tools]
+    environment:
+      <<: *database-env
+      MODEL_DIR: /app/outputs/models
+    volumes:
+      - ./outputs:/app/outputs
+      - ./data:/app/data
+    command: ["python", "-m", "cardops_ai.scripts.run_analysis_batch"]
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
       model-builder:
         condition: service_completed_successfully
 
@@ -91,15 +132,14 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: cardops-frontend
     restart: unless-stopped
     ports:
       - "5173:5173"
     environment:
       VITE_HOST: 0.0.0.0
-      VITE_API_PROXY_TARGET: http://backend:8000
+      VITE_API_PROXY_TARGET: http://core-service:8000
     depends_on:
-      - backend
+      - core-service
 
 volumes:
   cardops_mysql_data:

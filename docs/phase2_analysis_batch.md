@@ -47,14 +47,14 @@ artifact에서 나온 것인지 추적할 수 있습니다.
 
 | 파일 | 역할 |
 |---|---|
-| `backend/app/analysis_batch.py` | 고객 조회, 세 모델 실행, 운영 규칙 적용, DB 저장 |
-| `backend/scripts/run_analysis_batch.py` | 환경변수 기반 배치 CLI |
-| `backend/app/model_registry.py` | 분류 모델의 manifest 검증과 벡터화 batch predict |
+| `backend/ai-service/cardops_ai/app/analysis_batch.py` | 고객 조회, 세 모델 실행, 운영 규칙 적용, DB 저장 |
+| `backend/ai-service/cardops_ai/scripts/run_analysis_batch.py` | 환경변수 기반 배치 CLI |
+| `backend/ai-service/cardops_ai/app/model_registry.py` | 분류 모델의 manifest 검증과 벡터화 batch predict |
 | `src/final/regression_final.py` | 금액 제외 Voting 회귀 artifact와 전체 OOF 결과 생성 |
 | `src/final/clustering_final.py` | 활동성 갭 GMM k=3 artifact 생성 |
-| `backend/tests/test_analysis_batch.py` | 회귀 입력 계약과 위험도·액션 규칙 테스트 |
-| `backend/tests/test_api.py` | 온라인·배치 분류 결과 일관성 테스트 포함 |
-| `backend/Dockerfile` | LightGBM 실행에 필요한 `libgomp1` 설치 |
+| `backend/ai-service/tests/test_analysis_batch.py` | 회귀 입력 계약과 위험도·액션 규칙 테스트 |
+| `backend/ai-service/tests/test_api.py` | 온라인·배치 분류 결과 일관성 테스트 포함 |
+| `backend/ai-service/Dockerfile` | LightGBM 실행에 필요한 `libgomp1` 설치 |
 
 ## 4. 모델 입력 계약
 
@@ -143,7 +143,7 @@ project_venv/bin/python src/final/regression_final.py
 project_venv/bin/python src/final/clustering_final.py
 ~~~
 
-`backend/requirements.txt`에는 회귀 artifact를 읽기 위한 `lightgbm`이 포함되어
+`backend/ai-service/requirements.txt`에는 회귀 artifact를 읽기 위한 `lightgbm`이 포함되어
 있으며, Docker 이미지에는 LightGBM의 Linux OpenMP 런타임인 `libgomp1`이
 설치됩니다.
 
@@ -151,8 +151,8 @@ project_venv/bin/python src/final/clustering_final.py
 
 ~~~bash
 docker compose up -d --build
-docker compose exec backend python -m backend.scripts.import_customers
-docker compose exec backend python -m backend.scripts.run_analysis_batch
+docker compose run --rm jobs python -m cardops_ai.scripts.import_customers
+docker compose run --rm jobs python -m cardops_ai.scripts.run_analysis_batch
 ~~~
 
 위 명령은 호스트의 `outputs/models`와 `data`를 Backend 컨테이너에 읽기 전용으로
@@ -162,7 +162,7 @@ docker compose exec backend python -m backend.scripts.run_analysis_batch
 위험도 기준을 직접 지정하려면 다음처럼 실행합니다.
 
 ~~~bash
-docker compose exec backend python -m backend.scripts.run_analysis_batch \
+docker compose run --rm jobs python -m cardops_ai.scripts.run_analysis_batch \
   --medium-threshold 0.5 \
   --high-threshold 0.85 \
   --activity-gap-quantile 0.2 \
@@ -185,7 +185,7 @@ SHA-256·의사결정 정책 SHA-256을 묶은 `reuse_key_sha256`을 계산합�
 새로운 분석 스냅샷을 강제로 만들려면 `--force`를 사용합니다.
 
 ~~~bash
-docker compose exec backend python -m backend.scripts.run_analysis_batch --force
+docker compose run --rm jobs python -m cardops_ai.scripts.run_analysis_batch --force
 ~~~
 
 `--force` 실행은 새로운 `scoring_batches` 1건, `model_runs` 3건과
@@ -278,7 +278,7 @@ docker compose exec backend python -m backend.scripts.run_analysis_batch --force
 ## 10. 테스트
 
 ~~~bash
-project_venv/bin/python -m pytest backend/tests -q
+project_venv/bin/python -m pytest backend/ai-service/tests -q
 ~~~
 
 현재 Backend 테스트는 31개이며 다음을 포함합니다.

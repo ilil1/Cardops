@@ -1,45 +1,54 @@
 services:
   - type: web
     runtime: docker
+    name: cardops-ai
+    region: singapore
+    plan: free
+    dockerfilePath: ./backend/ai-service/Dockerfile
+    dockerContext: .
+    healthCheckPath: /ready
+    envVars:
+      - key: AI_SERVICE_TOKEN
+        generateValue: true
+      - key: MODEL_DIR
+        value: /app/outputs/models
+      - key: RENDER_BUILD_MODELS
+        value: "true"
+
+  - type: web
+    runtime: docker
+    # Keep the existing public API service name and URL.
     name: cardops-backend
     region: singapore
     plan: free
-    dockerfilePath: ./backend/nest/Dockerfile
+    dockerfilePath: ./backend/core-service/Dockerfile
     dockerContext: .
-    healthCheckPath: /ready
+    # AI readiness is observable at /ready; AI outages must not restart Core.
+    healthCheckPath: /live
     envVars:
       - key: APP_ENV
         value: production
       - key: DATABASE_URL
         sync: false
-        # Render Dashboard에 아래 형식의 TiDB 연결 문자열을 입력합니다.
-        # mysql+pymysql://3e55CQyDJDL7RoK.root:PASTE_NEW_TIDB_PASSWORD@gateway01.ap-northeast-1.prod.aws.tidbcloud.com:4000/test?ssl_ca=<CA_PATH>&ssl_verify_cert=true&ssl_verify_identity=true
       - key: JWT_SECRET
         generateValue: true
       - key: AUTH_COOKIE_SECURE
         value: "true"
       - key: CORS_ORIGINS
         sync: false
-      - key: MODEL_DIR
-        value: outputs/models
-      - key: RENDER_BUILD_MODELS
-        value: "true"
-      - key: ALLOW_TEST_USER_SEEDING
-        value: "false"
-      - key: POC_SEED_ON_START
-        value: "false"
-      - key: POC_SEED_CAMPAIGNS
-        value: "true"
-      - key: POC_SEED_LIMIT
-        value: "40"
-      - key: TEST_ADMIN_PASSWORD
-        sync: false
-      - key: TEST_ANALYST_PASSWORD
-        sync: false
-      - key: TEST_OPERATIONS_PASSWORD
-        sync: false
-      - key: TEST_MARKETING_PASSWORD
-        sync: false
+      # Free web services cannot receive private-network requests. Use HTTPS + token.
+      - key: AI_SERVICE_URL
+        fromService:
+          name: cardops-ai
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: AI_SERVICE_TOKEN
+        fromService:
+          name: cardops-ai
+          type: web
+          envVarKey: AI_SERVICE_TOKEN
+      - key: AI_SERVICE_TIMEOUT_MS
+        value: "60000"
 
   - type: web
     runtime: static

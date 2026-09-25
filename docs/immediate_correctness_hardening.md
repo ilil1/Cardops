@@ -184,8 +184,8 @@ Compose 컨테이너 환경은 생성 시 결정되므로 `.env`를 바꾼 뒤 B
 생성합니다.
 
 ```bash
-docker compose up -d --force-recreate backend
-docker compose exec backend python -m backend.scripts.seed_test_users
+docker compose up -d --force-recreate core-service ai-service
+docker compose run --rm jobs python -m cardops_ai.scripts.seed_test_users
 ```
 
 시드가 끝나면 `ALLOW_TEST_USER_SEEDING=false`로 되돌리고 Backend를 다시
@@ -212,14 +212,14 @@ HAVING COUNT(*) > 1;
 금액 컬럼의 서버 기본값 `0`을 복구합니다.
 
 ```bash
-python -m backend.app.migration_runner
-alembic -c backend/alembic.ini current
+python -m cardops_ai.app.migration_runner
+alembic -c backend/ai-service/alembic.ini current
 ```
 
 ## 9. 검증
 
 ```bash
-project_venv/bin/python -m pytest backend/tests -q
+project_venv/bin/python -m pytest backend/ai-service/tests -q
 cd frontend
 pnpm run lint
 pnpm run typecheck

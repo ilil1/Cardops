@@ -127,9 +127,9 @@ python src/clustering.py
 
 ```powershell
 .\project_venv\Scripts\python.exe -m pip install -r backend\requirements-dev.txt
-.\project_venv\Scripts\python.exe -m backend.app.migration_runner
-.\project_venv\Scripts\python.exe -m backend.scripts.import_customers
-.\project_venv\Scripts\python.exe -m uvicorn backend.app.main:app --reload
+.\project_venv\Scripts\python.exe -m cardops_ai.app.migration_runner
+.\project_venv\Scripts\python.exe -m cardops_ai.scripts.import_customers
+.\project_venv\Scripts\python.exe -m uvicorn cardops_ai.app.legacy_main:app --reload
 ```
 
 기본 주소는 `http://127.0.0.1:8000`이며 다음 API를 제공합니다.
@@ -198,14 +198,14 @@ docker compose ps
 4. 고객 데이터를 적재합니다. (합성 목데이터)
 
 <!-- ```bash
-docker compose exec backend python -m backend.scripts.import_customers
+docker compose run --rm jobs python -m cardops_ai.scripts.import_customers
 ``` -->
 
 위험도 구간이 고르게 분포한 합성 고객 2,000명
 
 ```bash
-docker compose exec backend python -m backend.scripts.generate_synthetic_customers
-docker compose exec backend python -m backend.scripts.import_customers --data-path //app/data/synthetic/synthetic_customers.csv --replace
+docker compose run --rm jobs python -m cardops_ai.scripts.generate_synthetic_customers
+docker compose run --rm jobs python -m cardops_ai.scripts.import_customers --data-path //app/data/synthetic/synthetic_customers.csv --replace
 ```
 
 `import_customers`는 `CLIENTNUM` 기준 upsert 방식이므로 다시 실행해도 고객이
@@ -215,7 +215,7 @@ docker compose exec backend python -m backend.scripts.import_customers --data-pa
 5. 분석 배치를 실행합니다.
 
 ```bash
-docker compose exec backend python -m backend.scripts.run_analysis_batch
+docker compose run --rm jobs python -m cardops_ai.scripts.run_analysis_batch
 ```
 
 분석 배치는 `customers`를 읽어 `customer_feature_snapshots`,
@@ -233,7 +233,7 @@ TEST_MARKETING_PASSWORD=<12자 이상의 로컬 전용 비밀번호>
 ```
 
 ```bash
-docker compose up -d --force-recreate backend
+docker compose up -d --force-recreate core-service ai-service
 ```
 
 테스트 계정 비밀번호는 저장소에 포함하지 않습니다.
@@ -243,8 +243,8 @@ docker compose up -d --force-recreate backend
    연결됩니다. 두 스크립트 모두 자기가 만든 캠페인을 지우고 새로 만듭니다.
 
 ```bash
-docker compose exec backend python -m backend.scripts.seed_demo_campaign --limit-per-campaign 60
-docker compose exec backend python -m backend.scripts.seed_segment_scenarios
+docker compose run --rm jobs python -m cardops_ai.scripts.seed_demo_campaign --limit-per-campaign 60
+docker compose run --rm jobs python -m cardops_ai.scripts.seed_segment_scenarios
 ```
 
 `[DEMO]` 캠페인 3개와 대상군·대조군, 전환·유지·매출 결과가 생성되고,
@@ -271,7 +271,7 @@ Docker 내부 Backend의 DB 주소는 `mysql:3306`이며, Mac 호스트에서 �
 ### 로그와 종료
 
 ```bash
-docker compose logs -f backend
+docker compose logs -f core-service
 docker compose down
 ```
 
@@ -281,8 +281,8 @@ MySQL 데이터 볼륨까지 삭제하는 `docker compose down -v`는 로컬 DB�
 ### 테스트
 
 ```bash
-python -m pip install -r backend/requirements-dev.txt
-project_venv/bin/python -m pytest backend/tests -q
+python -m pip install -r backend/ai-service/requirements-dev.txt
+project_venv/bin/python -m pytest backend/ai-service/tests -q
 ```
 
 Frontend 품질 검사는 Node.js 24와 pnpm 11이 필요하며, 자세한 명령은

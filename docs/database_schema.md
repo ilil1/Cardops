@@ -90,7 +90,8 @@ erDiagram
 
 ```bash
 source project_venv/bin/activate
-python -m backend.app.migration_runner
+export PYTHONPATH="$PWD/backend/ai-service:$PWD${PYTHONPATH:+:$PYTHONPATH}"
+python -m cardops_ai.app.migration_runner
 ```
 
 이 명령은 다음 두 경우를 모두 처리합니다.
@@ -102,12 +103,12 @@ python -m backend.app.migration_runner
 적용된 revision을 확인할 수 있습니다.
 
 ```bash
-alembic -c backend/alembic.ini current
-alembic -c backend/alembic.ini history
+alembic -c backend/ai-service/alembic.ini current
+alembic -c backend/ai-service/alembic.ini history
 ```
 
-Docker Compose에서는 Backend 컨테이너의 entrypoint가 API를 시작하기 전에
-`migration_runner`를 자동 실행합니다.
+Docker Compose에서는 `db-init` 작업이 `migration_runner`를 실행합니다.
+이 작업이 성공한 뒤 `core-service`가 시작됩니다.
 
 ## 고객 데이터 적재
 
@@ -116,13 +117,13 @@ Migration 후 원본 CSV의 고객 10,127명을 적재합니다.
 호스트에서 실행:
 
 ```bash
-python -m backend.scripts.import_customers
+python -m cardops_ai.scripts.import_customers
 ```
 
 Docker에서 실행:
 
 ```bash
-docker compose exec backend python -m backend.scripts.import_customers
+docker compose run --rm jobs python -m cardops_ai.scripts.import_customers
 ```
 
 적재는 `CLIENTNUM` 기준 upsert 방식이라 같은 명령을 다시 실행해도 고객이
@@ -134,9 +135,9 @@ Naive Bayes 결과 컬럼은 `customers` 테이블에 저장하지 않습니다.
 SQLAlchemy 모델을 먼저 변경한 뒤 migration을 자동 생성합니다.
 
 ```bash
-alembic -c backend/alembic.ini revision --autogenerate -m "변경 설명"
-alembic -c backend/alembic.ini check
-python -m backend.app.migration_runner
+alembic -c backend/ai-service/alembic.ini revision --autogenerate -m "변경 설명"
+alembic -c backend/ai-service/alembic.ini check
+python -m cardops_ai.app.migration_runner
 ```
 
 자동 생성된 migration은 적용 전에 반드시 검토합니다. 운영 데이터가 있는 DB에서

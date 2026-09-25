@@ -1,4 +1,6 @@
 .git
+.env
+.env.*
 .agents
 .codex
 **/node_modules

@@ -244,7 +244,7 @@ Alembic `20260801_0008`이 다음을 추가합니다.
 ## 검증
 
 ```bash
-./project_venv/bin/python -m pytest backend/tests -q
+./project_venv/bin/python -m pytest backend/ai-service/tests -q
 PATH=/Users/geonwookim/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:$PATH \
   /Users/geonwookim/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback/pnpm \
   --dir frontend run typecheck

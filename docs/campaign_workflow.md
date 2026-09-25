@@ -14,7 +14,7 @@
 | 캠페인 | `CampaignLifecycleStatus` | draft / scheduled / active / paused / completed / cancelled | 캠페인 전체의 실행 단계 |
 | 대상 | `CampaignStatus` | pending / assigned / contacted / completed / cancelled | 고객 한 명에 대한 처리 진행도 |
 
-(`backend/app/enums.py:31-49`)
+(`backend/ai-service/cardops_ai/app/enums.py:31-49`)
 
 ### 1.1 캠페인 상태 전이 (`campaign_service.py:60-82`)
 
