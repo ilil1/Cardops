@@ -297,7 +297,7 @@ CardOps/
 ├── data/                     # 원본·정제·합성 데이터
 ├── notebooks/                # 데이터셋별 전처리·EDA·모델 실험
 │   ├── BankChurners/          # 기존 BankChurners 노트북
-│   └── Synchrony/             # Synchrony 전처리 시작 노트북
+│   └── Synchrony/             # 원본 로드·기본 정제와 EDA 노트북
 ├── dashboard/                # 별도 Streamlit 모델 분석 화면
 ├── docs/                     # 설계·실행·검증 문서
 ├── outputs/                  # 모델·예측·평가 산출물

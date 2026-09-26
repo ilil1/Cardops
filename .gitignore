@@ -22,6 +22,7 @@ service-account*.json
 # Virtual environments and dependencies
 project_venv/
 .venv/
+cardops_venv/
 venv/
 env/
 node_modules/
