@@ -56,8 +56,6 @@ BankChurners는 **신용카드 고객 10,127명의 정보를 고객별 한 행�
 
 BankChurners는 고객별 한 행의 정적 데이터여서 이 흐름에 필요한 날짜별 거래와 이후 해지 시점을 제공하지 않습니다. 이것이 향후 시간순 예측·평가와 월별 MLOps를 위해 다른 데이터를 검토한 이유입니다.
 
-현재 Synchrony 데이터로 시간순 예측·평가를 오프라인에서 실험하고 있습니다. 월별 자동 데이터 처리와 재학습, 모델 승격·롤백은 후속 구현 범위입니다.
-
 관련 자료: [BankChurners 원본](../../data/raw/BankChurners.csv) · [Synchrony 실험 구현 범위](../../src/experiments/synchrony/README.md)
 
 ## 3. 이 한계를 개선하기 위한 새로운 작업
